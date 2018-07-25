@@ -142,14 +142,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -317,15 +317,16 @@
 <p>简要归纳：新的对象分配是首先放在年轻代 (<code>Young Generation</code>) 的<code>Eden</code>区，<code>Survivor</code>区作为<code>Eden</code>区和<code>Old</code>区的缓冲，在<code>Survivor</code>区的对象经历若干次收集仍然存活的，就会被转移到老年代<code>Old</code>中。</p>
 </blockquote>
 </li>
-</ol>
-</li>
-</ul>
-<pre><code>2. 从内存分配的角度看：
-
-- 线程共享的 `Java` 堆可能划分出多个线程私有的分配缓冲区（TLAB）。
-</code></pre><p>  进一步划分的目的是为了更好的回收内存，或者更快的回收内存。</p>
+<li><p>从内存分配的角度看：</p>
 <ul>
-<li><code>Java</code> 堆可以处于物理上不连续的内存空间中，只要逻辑上是连续即可。如果在堆中没有内存完成实例分配，并且堆也无法再扩展时，将会抛出 <code>OutOfMemoryError</code> 异常。</li>
+<li>线程共享的 <code>Java</code> 堆可能划分出多个线程私有的分配缓冲区（TLAB）。</li>
+</ul>
+</li>
+</ol>
+<p>进一步划分的目的是为了更好的回收内存，或者更快的回收内存。</p>
+</li>
+<li><p><code>Java</code> 堆可以处于物理上不连续的内存空间中，只要逻辑上是连续即可。如果在堆中没有内存完成实例分配，并且堆也无法再扩展时，将会抛出 <code>OutOfMemoryError</code> 异常。</p>
+</li>
 </ul>
 <h2 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h2><p>方法区和<code>Java</code>堆一样，是所有线程共享的内存区域。</p>
 <p>作用：</p>
