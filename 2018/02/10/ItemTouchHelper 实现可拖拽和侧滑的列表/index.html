@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          ItemTouchHelper 实现可拖拽和侧滑的列表 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/02/10/ItemTouchHelper 实现可拖拽和侧滑的列表/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#View" title="View">View</a>
+                            
+                        </div>
+                        <h1>ItemTouchHelper 实现可拖拽和侧滑的列表</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-02-10
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>话不多说，直接上图：<br><img src="https://user-gold-cdn.xitu.io/2018/2/9/1617647158982e44?w=528&amp;h=960&amp;f=gif&amp;s=1938354" alt=""><br>笔者使用 <code>RecyclerView</code>  的 <code>ItemTouchHelper</code> 来实现这个效果，过程非常简单。</p>
+<p>实现功能：</p>
+<ul>
+<li>按住 <code>item</code> 左侧的按钮可以上下拖动 <code>item</code> </li>
+<li>向右侧滑删除 <code>item</code></li>
+<li><code>item</code> 拖动或侧滑时有阴影效果</li>
+</ul>
+<h1 id="实现基本功能"><a href="#实现基本功能" class="headerlink" title="实现基本功能"></a>实现基本功能</h1><p>循序渐进学习，这里我们先实现基本的功能：</p>
+<ul>
+<li>长按 <code>item</code> 实现上下拖拽</li>
+<li>向右侧滑删除<h2 id="布局文件"><a href="#布局文件" class="headerlink" title="布局文件"></a>布局文件</h2>很简单，不多说，直接上代码：</li>
+</ul>
+<p><em>activity_main.xml</em><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">android.support.v7.widget.RecyclerView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/main_recyclerView"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:scrollbars</span>=<span class="string">"none"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:background</span>=<span class="string">"#F2F8FC"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">android.support.v7.widget.RecyclerView</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p><em>item_list.xml</em><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">android.support.constraint.ConstraintLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"60dp"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:background</span>=<span class="string">"#ffffff"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">ImageView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/item_list_menu_imageView"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"30dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"25dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginBottom</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginStart</span>=<span class="string">"15dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginTop</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:src</span>=<span class="string">"@drawable/imageview_menu"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> /&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/item_list_text_textView"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginBottom</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginStart</span>=<span class="string">"15dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginTop</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textColor</span>=<span class="string">"#000000"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textSize</span>=<span class="string">"18sp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintStart_toEndOf</span>=<span class="string">"@+id/item_list_menu_imageView"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">android.support.v7.widget.SwitchCompat</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/item_list_switchCompat"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginBottom</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginEnd</span>=<span class="string">"15dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginTop</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        /&gt;</span></span><br><span class="line">    </span><br><span class="line"><span class="tag">&lt;/<span class="name">android.support.constraint.ConstraintLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="ItemTouchHelper"><a href="#ItemTouchHelper" class="headerlink" title="ItemTouchHelper"></a>ItemTouchHelper</h2><p>官方的API解释：</p>
+<blockquote>
+<p>This is a utility class to add swipe to dismiss and drag &amp; drop support to RecyclerView.</p>
+</blockquote>
+<p>这是一个给 <code>RecyclerView</code>    添加侧滑删除和拖拽的工具类。有了它，我们就可以很方便的实现上面的效果。<br>从构造器： <code>ItemTouchHelper(ItemTouchHelper.Callback callback)</code> 可以看出，我们需要一个 <code>ItemTouchHelper.Callback</code> 去构造 <code>ItemTouchHelper</code> 。</p>
+<p><code>ItemTouchHelper.Callback</code> 官方提供了一个实现类 <code>ItemTouchHelper.SimpleCallback()</code> ，它的使用很简单，但为了得到更高的定制性，这里我们不使用它，有兴趣的朋友可以去尝试一下。</p>
+<p>新建一个 <code>MyItemTouchHelperCallback</code> 类继承 <code>ItemTouchHelper.Callback</code> ，这里我们关注它其中的三个方法:</p>
+<ul>
+<li><code>getMovementFlags()</code> 定义 <code>item</code> 的可以拖拽和滑动的方向。</li>
+<li><code>onMove()</code> 当 <code>item</code> 想要上下拖拽时会调用此方法。</li>
+<li><code>onSwiped</code> 当 <code>item</code> 想要左右侧滑时会调用此方法。</li>
+</ul>
+<p>在写 <code>MyItemTouchHelperCallback</code> 之前我们先创建一个 <code>IItemTouchHelperAdapter</code> 接口，让 <code>RecyclerViewAdapter</code> 实现这个接口。用于 <code>RecyclerViewAdapter</code> 回调。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IItemTouchHelperAdapter</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当item被移动时调用</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> fromPosition 被操作的item的起点</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> toPosition   被操作的item的终点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemMove</span><span class="params">(<span class="keyword">int</span> fromPosition, <span class="keyword">int</span> toPosition)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当item被侧滑时调用</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> position 被侧滑的item的position</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemDismiss</span><span class="params">(<span class="keyword">int</span> position)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在 <code>RecyclerViewAdapter</code> 中实现刚刚继承的两个方法:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemMove</span><span class="params">(<span class="keyword">int</span> fromPosition, <span class="keyword">int</span> toPosition)</span> </span>&#123;</span><br><span class="line">      Collections.swap(mList, fromPosition, toPosition);</span><br><span class="line">      notifyItemMoved(fromPosition, toPosition);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemDismiss</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">      mList.remove(position);</span><br><span class="line">      notifyItemRemoved(position);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>之后我们就可以开始编写 <code>MyItemTouchHelperCallback</code> ，注释很清楚，就不多说了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyItemTouchHelperCallback</span> <span class="keyword">extends</span> <span class="title">ItemTouchHelper</span>.<span class="title">Callback</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> IItemTouchHelperAdapter mAdapter;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyItemTouchHelperCallback</span><span class="params">(IItemTouchHelperAdapter mAdapter)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.mAdapter = mAdapter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMovementFlags</span><span class="params">(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//上下拖拽，若有其他需求同理</span></span><br><span class="line">        <span class="keyword">int</span> dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;</span><br><span class="line">        <span class="comment">//向右侧滑，若有其他需求同理</span></span><br><span class="line">        <span class="keyword">int</span> swipeFlags = ItemTouchHelper.RIGHT;</span><br><span class="line">        <span class="keyword">return</span> makeMovementFlags(dragFlags, swipeFlags);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onMove</span><span class="params">(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//通知Adapter更新数据和视图</span></span><br><span class="line">        mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());</span><br><span class="line">        <span class="comment">//若返回false则表示不支持上下拖拽</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSwiped</span><span class="params">(RecyclerView.ViewHolder viewHolder, <span class="keyword">int</span> direction)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//通知Adapter更新数据和视图</span></span><br><span class="line">        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isItemViewSwipeEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//是否可以左右侧滑，默认返回true</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isLongPressDragEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//是否可以长按上下拖拽，默认返回false</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后，在 <code>Acivity</code> 中将 <code>ItemTouchHelper</code> 和 <code>RecyclerView</code> 关联起来<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mItemTouchHelper = <span class="keyword">new</span> ItemTouchHelper(<span class="keyword">new</span> MyItemTouchHelperCallback(adapter));</span><br><span class="line">mItemTouchHelper.attachToRecyclerView(recyclerView);</span><br></pre></td></tr></table></figure></p>
+<p>运行效果：<br><img src="https://user-gold-cdn.xitu.io/2018/2/9/16178b96b494d3f1?w=528&amp;h=960&amp;f=gif&amp;s=967522" alt=""></p>
+<h1 id="完善"><a href="#完善" class="headerlink" title="完善"></a>完善</h1><p>我们实现的的基本效果与文章开头给出的效果还是有一点差距的，还需要实现的效果：</p>
+<ul>
+<li>通过按住 <code>item</code> 左边按钮才能上下拖拽。</li>
+<li>侧滑或拖拽时被操作的 <code>item</code> Z轴高度增加，有明显的阴影。</li>
+</ul>
+<h2 id="通过按住-item-左边按钮才能上下拖拽"><a href="#通过按住-item-左边按钮才能上下拖拽" class="headerlink" title="通过按住 item 左边按钮才能上下拖拽"></a>通过按住 <code>item</code> 左边按钮才能上下拖拽</h2><p>首先修改 <code>MyItemTouchHelperCallback</code> 的 <code>isLongPressDragEnabled()</code><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isLongPressDragEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="comment">//禁止长按item可以上下拖拽，因为我们要自定义开启拖拽的时机</span></span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>其次新建一个<code>OnStartDragListener</code>接口，用于回调<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnStartDragListener</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当View需要拖拽时回调</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> viewHolder The holder of view to drag</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onStartDrag</span><span class="params">(RecyclerView.ViewHolder viewHolder)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>让 <code>Activity</code> 继承这个类，实现 <code>onStartDrag()</code> 方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onStartDrag</span><span class="params">(RecyclerView.ViewHolder viewHolder)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//通知ItemTouchHelper开始拖拽</span></span><br><span class="line">        mItemTouchHelper.startDrag(viewHolder);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>在 <code>RecyclerViewAdapter</code> 的构造方法中传入 <code>OnStartDragListener</code> 的实例（即实现了该接口的<code>Activity</code>），给 <code>item</code> 左侧的按钮添加<br>事件监听<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RecyclerViewAdapter</span> <span class="keyword">extends</span></span></span><br><span class="line"><span class="class">        <span class="title">RecyclerView</span>.<span class="title">Adapter</span>&lt;<span class="title">RecyclerViewAdapter</span>.<span class="title">ItemViewHolder</span>&gt; <span class="keyword">implements</span> <span class="title">IItemTouchHelperAdapter</span> </span>&#123;</span><br><span class="line">    <span class="comment">//构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RecyclerViewAdapter</span><span class="params">(List&lt;ItemEntity&gt; list, OnStartDragListener mDragListener)</span> </span>&#123;</span><br><span class="line">        mList = list;</span><br><span class="line">        <span class="keyword">this</span>.mDragListener = mDragListener;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">     <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(<span class="keyword">final</span> IItemViewHolder holder, @SuppressLint(<span class="string">"RecyclerView"</span>)</span> <span class="keyword">final</span> <span class="keyword">int</span> position) </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        holder.menu.setOnTouchListener(<span class="keyword">new</span> View.OnTouchListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouch</span><span class="params">(View view, MotionEvent motionEvent)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (motionEvent.getAction()</span><br><span class="line">                        == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">                    <span class="comment">//通知ItemTouchHelper开始拖拽    </span></span><br><span class="line">                    mDragListener.onStartDrag(holder);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="侧滑或拖拽时被操作的-item-Z轴高度增加，有明显的阴影"><a href="#侧滑或拖拽时被操作的-item-Z轴高度增加，有明显的阴影" class="headerlink" title="侧滑或拖拽时被操作的 item Z轴高度增加，有明显的阴影"></a>侧滑或拖拽时被操作的 <code>item</code> Z轴高度增加，有明显的阴影</h2><p>要实现这个效果，笔者使用 <code>ItemTouchHelper.Callback</code> 提供的两个回调方法：</p>
+<ul>
+<li><code>onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState)</code> ：当 <code>ViewHolder</code> (即 <code>item</code> )滑动或拖动时被调用。</li>
+<li><code>clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)</code> ：当 <code>ViewHolder</code> 滑动和拖拽结束时被调用</li>
+</ul>
+<p>首先新建一个 <code>IItemTouchHelperViewHolder</code> 接口用于回调，让 <code>RecyclerViewAdapter</code> 的 <code>ViewHolder</code> 继承它。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IItemTouchHelperViewHolder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * item被选中，在侧滑或拖拽过程中更新状态</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemSelected</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * item的拖拽或侧滑结束，恢复默认的状态</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemClear</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后让<code>ViewHolder</code>重写上述的两个方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> <span class="class"><span class="keyword">class</span> <span class="title">ItemViewHolder</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">ViewHolder</span> <span class="keyword">implements</span> <span class="title">IItemTouchHelperViewHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> TextView text;</span><br><span class="line">        <span class="keyword">private</span> ImageView menu;</span><br><span class="line">        <span class="keyword">private</span> SwitchCompat switchCompat;</span><br><span class="line"></span><br><span class="line">        ItemViewHolder(View itemView) &#123;</span><br><span class="line">            <span class="keyword">super</span>(itemView);</span><br><span class="line">            text = itemView.findViewById(R.id.item_list_text_textView);</span><br><span class="line">            menu = itemView.findViewById(R.id.item_list_menu_imageView);</span><br><span class="line">            switchCompat = itemView.findViewById(R.id.item_list_switchCompat);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemSelected</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            itemView.setTranslationZ(<span class="number">10</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemClear</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            itemView.setTranslationZ(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里通过 <code>setTranslationZ()</code> 来改变 <code>itemView</code> 的高度。</p>
+<p>之前笔者尝试通过 <code>setElevation()</code> 来改变高度，但是行不通，后来查资料发现 <code>View</code> 的Z轴阴影<br> <code>Z = elevation + translationZ</code> 其中：</p>
+<ul>
+<li><code>elevation</code> 是静态值，是 <code>View</code> 在Z轴上的初始值</li>
+<li><code>translationZ</code> 是动态值，是Z上的偏移变化</li>
+</ul>
+<p>所以我们这里应该使用 <code>setTranslationZ()</code> 来改变 <code>View</code> 的Z轴高度而不是使用 <code>setElevation()</code> ，读者们可以自行尝试一下。</p>
+<p>最后修改 <code>MyItemTouchHelperCallback</code> ，重写上述的两个方法，过程很简单，直接看代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSelectedChanged</span><span class="params">(RecyclerView.ViewHolder viewHolder, <span class="keyword">int</span> actionState)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (actionState != ItemTouchHelper.ACTION_STATE_IDLE) &#123;</span><br><span class="line">           <span class="comment">//不为空闲状态，即为拖拽或侧滑状态</span></span><br><span class="line">           <span class="keyword">if</span> (viewHolder <span class="keyword">instanceof</span> IItemTouchHelperViewHolder) &#123;</span><br><span class="line">               IItemTouchHelperViewHolder itemTouchHelperViewHolder =</span><br><span class="line">                       (IItemTouchHelperViewHolder) viewHolder;</span><br><span class="line">               itemTouchHelperViewHolder.onItemSelected();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">super</span>.onSelectedChanged(viewHolder, actionState);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clearView</span><span class="params">(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">super</span>.clearView(recyclerView, viewHolder);</span><br><span class="line">       <span class="keyword">if</span> (viewHolder <span class="keyword">instanceof</span> IItemTouchHelperViewHolder) &#123;</span><br><span class="line">           IItemTouchHelperViewHolder itemTouchHelperViewHolder =</span><br><span class="line">                   (IItemTouchHelperViewHolder) viewHolder;</span><br><span class="line">           itemTouchHelperViewHolder.onItemClear();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>这里是<a href="https://github.com/LinYaoTian/SwipeAndDragRecyclerView" target="_blank" rel="noopener">【源码】</a></p>
+<p>如果文章中有什么错误或值得改进的地方，欢迎到评论区中给我留言</p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/2018/07/24/JVM(一) - Java 内存区域/" data-toggle="tooltip" data-placement="top" title="JVM(一) - Java 内存区域">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/02/07/仿知乎分享界面/" data-toggle="tooltip" data-placement="top" title="仿知乎分享界面">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#前言"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">前言</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#实现基本功能"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">实现基本功能</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#布局文件"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">布局文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#ItemTouchHelper"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">ItemTouchHelper</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#完善"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">完善</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#通过按住-item-左边按钮才能上下拖拽"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">通过按住 item 左边按钮才能上下拖拽</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#侧滑或拖拽时被操作的-item-Z轴高度增加，有明显的阴影"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">侧滑或拖拽时被操作的 item Z轴高度增加，有明显的阴影</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#最后"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">最后</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/02/10/ItemTouchHelper 实现可拖拽和侧滑的列表/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/02/10/ItemTouchHelper 实现可拖拽和侧滑的列表/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
