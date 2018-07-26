@@ -202,6 +202,35 @@
 
 <div class="post-preview">
 
+    <a href="/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/">
+        <h2 class="post-title">
+            JVM(二) - 垃圾收集器与内存分配策略
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            概述在 Java内存运行时区域中，程序计数器、虚拟机栈、本地方法栈 三个区域随线程而生，随线程而灭；栈中的栈帧随着方法的进入和退出而有条不紊地执行着出栈和入栈操作。每一个栈帧中分配多少内存基本上是在类结构确定下来时就已知的，因此这几个区域的内存分配和回收都具备确定性。在这几个区域内不需要过多考虑回收的问题，因为方法结束或线程结束时，内存自然就跟随着回收了。
+而Java堆 和 方法区 则不一样......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-07-25
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#JVM" title="JVM">JVM</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/07/24/JVM(一) - Java 内存区域/">
         <h2 class="post-title">
             JVM(一) - Java 内存区域
@@ -383,6 +412,10 @@ item 拖动或侧滑时有阴影效果
   <h5>RECENT POSTS</h3>
   <div class="widget">
     <ul>
+      
+        <li>
+          <a href="/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/">JVM(二) - 垃圾收集器与内存分配策略</a>
+        </li>
       
         <li>
           <a href="/2018/07/24/JVM(一) - Java 内存区域/">JVM(一) - Java 内存区域</a>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          JVM(二) - 垃圾收集器与内存分配策略 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#JVM" title="JVM">JVM</a>
+                            
+                        </div>
+                        <h1>JVM(二) - 垃圾收集器与内存分配策略</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-07-25
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在 <code>Java</code>内存运行时区域中，<strong>程序计数器</strong>、<strong>虚拟机栈</strong>、<strong>本地方法栈</strong> 三个区域随线程而生，随线程而灭；栈中的栈帧随着方法的进入和退出而有条不紊地执行着出栈和入栈操作。每一个栈帧中分配多少内存基本上是在类结构确定下来时就已知的，因此这几个区域的<strong>内存分配和回收</strong>都具备<strong>确定性</strong>。在这几个区域内不需要过多考虑回收的问题，<strong>因为方法结束或线程结束时，内存自然就跟随着回收了</strong>。</p>
+<p>而<code>Java</code><strong>堆</strong> 和 <strong>方法区</strong> 则不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中的多个分支需要的内存也可能不一样。我们只有在程序处于运行期间时才能知道会创建哪些对象，这部分<strong>内存的分配和回收</strong>都是<strong>动态的</strong>，<strong>垃圾收集器</strong> 所关注的是这部分内存。</p>
+<h1 id="对象已死吗"><a href="#对象已死吗" class="headerlink" title="对象已死吗"></a>对象已死吗</h1><p>在堆里面存放着 <code>Java</code> 世界几乎所有的对象实例，垃圾收集器在对堆进行回收前，第一件事情就是要确定这些对象哪些还“存活”，哪些已经“死去”。</p>
+<h2 id="引用指数算法"><a href="#引用指数算法" class="headerlink" title="引用指数算法"></a>引用指数算法</h2><p>给对象中添加一个引用计数器，每当有一个地方引用它，计数器就加 <strong>1</strong>；当引用失效时，计数器就减 <strong>1</strong>；任何时刻计数器为 <strong>0</strong> 的对象都是不可能再被使用的。</p>
+<ul>
+<li><p>优点：</p>
+<p>引用计数收集器执行简单，判定效率高，交织在程序运行中。对程序不被长时间打断的实时环境比较有利。</p>
+</li>
+<li><p>缺点：</p>
+<p>难以检测出对象之间的循环引用。同时，引用计数器增加了程序执行的开销。所以主流 <code>Java</code> 虚拟机并没有选择这种算法进行垃圾回收。</p>
+</li>
+</ul>
+<h2 id="可达性算法"><a href="#可达性算法" class="headerlink" title="可达性算法"></a>可达性算法</h2><p><code>JVM</code> 通过<strong>可达性分析</strong>（<code>Reachability Analysis</code>）来判断对象是否存活。</p>
+<p>基本思想：通过一系列称为 <code>GC Roots</code> 的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为引用链（<code>Reference Chain</code>），当一个对象到 <code>GC Roots</code> 没有任何引用链相连时（用图论来说，就是 <code>GC Roots</code> 到这个对象不可达），则证明此对象是不可达的。</p>
+<p>如下图：对象 <code>Object 5</code> 、<code>Object 6</code> 、<code>Object 7</code> 虽然互相有关联，但是它们到 <code>GC Roots</code> 是不可达的，所以他们将被判定为是可回收的对象。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/17/164a85bd8307d805?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt=""></p>
+<p><strong>在 <code>Java</code> 中，可作为 <code>GC Roots</code> 的对象包括以下四种：</strong></p>
+<ul>
+<li><strong>虚拟机栈</strong>（栈帧中的<strong>本地变量表</strong>）中引用的对象</li>
+<li><strong>本地方法栈</strong> 中 <code>JNI</code> (<code>Native</code>) 引用的对象</li>
+<li><strong>方法区</strong> 中<strong>类静态属性</strong>引用的对象</li>
+<li><strong>方法区</strong> 中<strong>常量</strong>引用的对象</li>
+</ul>
+<h2 id="再谈引用"><a href="#再谈引用" class="headerlink" title="再谈引用"></a>再谈引用</h2><p>引用可分为四类：<strong>强引用</strong>（<code>Strong Reference</code>），<strong>软引用</strong>（<code>Soft Reference</code>），<strong>弱引用</strong>（<code>Weak Reference</code>），<strong>虚引用</strong>（<code>Phantom Reference</code>），这四种引用强度依次减弱。</p>
+<h3 id="强引用（Strong-Reference）"><a href="#强引用（Strong-Reference）" class="headerlink" title="强引用（Strong Reference）"></a>强引用（Strong Reference）</h3><p>程序代码中普遍存在，类似 <code>Object o = new Object()</code> 这类的引用，只要强引用还存在，垃圾收集器永远不会去回收掉被引用的对象。</p>
+<h3 id="软引用（Soft-Reference）"><a href="#软引用（Soft-Reference）" class="headerlink" title="软引用（Soft Reference）"></a>软引用（Soft Reference）</h3><p>软引用是用来描述一些还有用但是并非必需的对象。对于软引用关联着的对象，在系统将要发生内存溢出异常之前，将会把这些对象列进回收范围之中进行第二次回收。如果这次回收还没有足够的内存，将会抛出内存溢出异常。</p>
+<h3 id="弱引用（Weak-Reference）"><a href="#弱引用（Weak-Reference）" class="headerlink" title="弱引用（Weak Reference）"></a>弱引用（Weak Reference）</h3><p>弱引用也是用来描述非必需对象的，但是它的强度比软引用更弱一些，被弱引用关联的对象只能生存到下一次垃圾收集发生之前。当垃圾收集器工作时，无论当前内存是否足够，都会回收掉只被弱引用关联的对象。</p>
+<h3 id="虚引用（Phantom-Reference）"><a href="#虚引用（Phantom-Reference）" class="headerlink" title="虚引用（Phantom Reference）"></a>虚引用（Phantom Reference）</h3><p>虚引用也称为幽灵引用或幻影引用，是最弱的一种引用关系，<code>JDK</code>提供了<code>PhantomReference</code>类来实现虚引用。为一个对象设置虚引用的唯一目的是：能在这个对象在<strong>垃圾回收器</strong>回收时收到一个<strong>系统通知</strong>。</p>
+<h2 id="生存还是死亡"><a href="#生存还是死亡" class="headerlink" title="生存还是死亡"></a>生存还是死亡</h2><p>即使在可达性分析算法中不可达的对象，也并非是“非死不可”的，这时候它们暂时处于“缓刑”阶段，要真正宣告一个对象死亡，至少要经历两次标记过程：</p>
+<p>第一次标记过程：如果对象在进行可达性分析后发现没有与 <code>GC Roots</code> 相连接的引用链，那它将会被第一次标记并且进行一次筛选，筛选的条件是此对象是否有必要执行 <code>finalize()</code> 方法。当对象没有覆盖 <code>finalize()</code> 方法，或者<code>finalize()</code> 方法已经被虚拟机调用过，虚拟机将这两种情况都视为“没有必要执行”。</p>
+<p>第二次标记过程：如果这个对象被判定为有必要执行 <code>finalize()</code> 方法，那么这个对象将会放置在一个叫做 <code>F-Queue</code> 的队列之中，并在稍后由一个由虚拟机自动建立的、低优先级的 <code>Finalizer</code> 线程去执行它。这里所谓的“执行”是指虚拟机会触发这个方法，但并不承诺会等待它运行结束。<code>finalize()</code> 方法是对象逃脱死亡命运的最后一次机会，稍后 <code>GC</code> 将对 <code>F-Queue</code> 中的对象进行第二次小规模的标记，如果对象要在 <code>finalize()</code> 中成功拯救自己——只要重新与引用链上的任何一个对象建立关联即可，譬如把自己（ <code>this</code> 关键字）赋值给某个类变量或者对象的成员变量，那在第二次标记时它将被移除出“即将回收”的集合；如果对象这时候还没有逃脱，那基本上它就真的被回收了。</p>
+<p><strong>不鼓励大家使用这种 finalize() 方法来拯救对象，它的运行代价高昂，不确定性大，无法保证各个对象的调用顺序。</strong></p>
+<h2 id="回收方法区"><a href="#回收方法区" class="headerlink" title="回收方法区"></a>回收方法区</h2><p><strong>方法区（或者 HotSpot 虚拟机中的永久带）</strong> 的垃圾收集效率远低于堆中。</p>
+<p><strong>永久带</strong>的垃圾收集主要回收两部分内容：</p>
+<ul>
+<li><p><strong>废弃常量</strong></p>
+<p>回收废弃常量与回收 <code>Java</code> 堆中的对象非常相似。</p>
+</li>
+<li><p><strong>无用的类</strong></p>
+<p>判定一个类是“无用的类”需同时满足以下三个条件：</p>
+<ul>
+<li>该类所有的实例都已经被回收，也就是 <code>Java</code> 堆中不存在该类的任何实例。</li>
+<li>加载该类的 <code>ClassLoader</code> 已经被回收。</li>
+<li>该类对应的 <code>java.lang.Class</code> 对象没有在任何地方被引用过，无法在任何地方通过反射访问该类的方法。</li>
+</ul>
+<p>虚拟机可以对满足上述条件的无用类进行回收，这里说的仅仅是“可以”，而不是和对象一样，不使用了就必然会回收。</p>
+</li>
+</ul>
+<h1 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h1><h2 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h2><p>最基础的算法是“标记-清除”（<code>Mark-Sweep</code>）算法，算法分为“标记”和“清楚”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象，它的标记过程已在前面说过。</p>
+<ul>
+<li><p>优点：</p>
+<p>实现简单，不需要进行对象进行移动。</p>
+</li>
+<li><p>缺点：</p>
+<ol>
+<li>标记和清除两个过程的效率不高。</li>
+<li>标记清除后会产生大量不连续的内存碎片，空间碎片太多可能会导致程序在以后的执行过程需要分配较大的对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。</li>
+</ol>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-3a699071d5afe66d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>##　复制算法</p>
+<p>基本思路：将内存区域划分成大小相等的两块，每次只用其中的一块。当这一块用完了，就还存活着的对象复制到另一块上面，然后再把已使用过的内存空间一次清理掉。</p>
+<ul>
+<li><p>优点：</p>
+<p>每次都是对整个半区进行内存回收，内存分配时也就不用考虑内存碎片等复杂情况，只要移动堆顶指针，按顺序分配内存即可，实现简单，运行高效。</p>
+</li>
+<li><p>缺点：</p>
+<p>内存大小缩小为原来一半，在对象存活率较高时会频繁进行复制。</p>
+</li>
+</ul>
+<p>现在商业虚拟机都采用了这种收集算法来回收<strong>新生代</strong>：</p>
+<p><code>IBM</code> 研究表明：新生代中对象98%是“朝生夕死”，所以并不需要按照1:1的比例来划分内存空间。将新生代分为一块较大的 <code>Eden</code> 空间和两块较小的 <code>Survivor</code> 空间，每次使用 <code>Eden</code> 和其中一块 <code>Survivor</code>。当回收时，将 <code>Eden</code> 和 <code>Survivor</code> 中还存活着的对象一次性地复制到另外一块 <code>Survivor</code> 空间上，最后清理掉 <code>Eden</code> 和刚才用过的<code>Survivor</code> 空间。<code>HotSpot</code> 虚拟机默认 <code>Eden</code> 和 <code>Survivor</code> 的大小比例是 <strong>8:1</strong>，也就是每次新生代中可用内存空间为整个新生代容量的90%（80%+10%），只有10%的内存会被“浪费”。当然，98%的对象可回收只是一般场景下的数据，我们没有办法保证每次回收都只有不多于10%的对象存活，当 <code>Survivor</code> 空间不够用时，需要依赖其他内存（这里指老年代）进行<strong>分配担保</strong>。</p>
+<p>内存的<strong>分配担保</strong>：</p>
+<p>如果另一块 <code>Survivor</code> 空间没有足够的空间存放上一次新生代收集下来的存活对象时，这些对象将直接通过分配担保机制进入老年代。</p>
+<h2 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h2><p>老年代需要做分配担保，因此老年代中需要应对所有对象都是100%存活的极端情况，因此复制算法不能直接用于老年代。</p>
+<p>所以根据老年代的特点，提出另外一种<strong>标记-整理算法</strong>，标记过程和<strong>标记-清除算法</strong>一样，但后续不直接对可回收对象进行回收，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。</p>
+<ul>
+<li><p>优点：</p>
+<p>解决了<strong>标记-清除算法</strong>存在的内存碎片问题。</p>
+</li>
+<li><p>缺点：</p>
+<p>仍需要对局部对象移动，一定程序上降低了效率。</p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-6f84eacc7a921654.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>根据对象存活周期的不同将内存划分为几块。一般是把 <code>Java</code> 堆分为<strong>新生代</strong>和<strong>老年代</strong>，这样就可以根据各个年代的特点采用最适当的收集算法。</p>
+<p>在<strong>新生代</strong>中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用<strong>复制算法</strong>，只需要付出少量存活对象的复制成本就可以完成收集。</p>
+<p>而<strong>老年代</strong>中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“<strong>标记—清理</strong>”或者“<strong>标记—整理</strong>”算法来进行回收。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/17/164a85bd83298d96?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt=""></p>
+<h1 id="HotSpot-的算法实现"><a href="#HotSpot-的算法实现" class="headerlink" title="HotSpot 的算法实现"></a>HotSpot 的算法实现</h1><h2 id="枚举根节点"><a href="#枚举根节点" class="headerlink" title="枚举根节点"></a>枚举根节点</h2><p>由于在 <code>GC Roots</code> 节点（主要在<strong>全局性引用</strong>(如静态常量或静态属性)与<strong>执行上下文</strong>(例如栈帧中的本地变量表)）中找引用链操作时若要逐个检查里面的引用，则必然会消耗很多时间。</p>
+<p>另外，可达性分析对时间的敏感还体现在 <code>GC</code> 停顿上，因为这项分析工作必须在一个能够确保一致性的快照中进行，因此 <code>GC</code> 进行时必须停顿所有的 <code>Java</code> 执行线程（<code>Sun</code> 将这件事称为 “Stop The World”），才不会出现分析过程中引用对象不断变化的情况。 </p>
+<p>因此在 <code>HotSpot</code> 的 <code>GC</code> 实现中，是使用一组称为 <code>OopMap</code> 的数据结构来达到这个目的的，在类加载完成的时候，<code>HotSpot</code> 就把对象内什么偏移量上是什么类型的数据计算出来，在 <code>JIT</code> 编译过程中，也会在特定的位置记录下栈和寄存器中哪些位置是引用。这样 <code>GC</code> 在扫描时就可以直接指导这些信息了。</p>
+<h2 id="安全点"><a href="#安全点" class="headerlink" title="安全点"></a>安全点</h2><p><strong>HotSpot 没有为每条指令都生成 OopMap，只有程序执行到安全点（Safepoint）才能暂停下来开始 GC 。</strong></p>
+<p>安全点的选定基本上是以程序“是否具有让程序长时间执行的特征”为标准进行选定的——“长时间执行”的最明显特征就是指令序列复用，例如方法调用、循环跳转、异常跳转等，具有这些功能的指令才会产生 <code>Safepoint</code> 。</p>
+<p>对于 <code>Safepoint</code> ，在 <code>GC</code> 发生时如何让所有线程都“跑”到最近的安全点上再停顿下来。这里有 2 种方案选择：抢先式中断和主动式中断。</p>
+<ul>
+<li><p><strong>抢先式中断</strong>：</p>
+<p>不需要线程的执行代码主动配合，在 <code>GC</code> 发生时，首先把所有线程中断，如果发生有线程中断的地方不在安全点上，就恢复线程，让它“跑”到安全点上。（<strong>现在几乎没有虚拟机采用抢先式中断来暂停线程从而响应 GC 事件</strong>）</p>
+</li>
+<li><p><strong>主动式中断</strong>：</p>
+<p>当 <code>GC</code> 需要中断线程时，不直接对线程操作，仅仅简单地设置一个标志，各个线程执行时主动去轮询这个标志，发现中断标志为真时就自己挂起。轮询标志的地方和安全点是重合的，另外再加上创建对象需要分配内存的地方。</p>
+</li>
+</ul>
+<h2 id="安全区域"><a href="#安全区域" class="headerlink" title="安全区域"></a>安全区域</h2><p><code>Safepoint</code> 机制保证了程序执行时，在不太长时间内就会遇到可进入的 <code>GC</code> 的 <code>Safepoint</code> 。但是程序“不执行’’的时候呢？典型的情况就是线程处于 <code>sleep</code> 状态或者 <code>blocked</code> 状态，这时候线程无法响应 <code>JVM</code> 的中断请求，”走“到安全的地方去中断挂起。对于这种情况就需要安全区域（<code>Safe Region</code>）。</p>
+<p><strong>安全区域是指在一段代码片段之中，引用关系不会发生变化。在这个区域中的任意地方开始GC都是安全的。</strong></p>
+<p>在线程执行到 <code>Safe Region</code> 中的代码时，首先标识自己已经进入了 <code>Safe Region</code>，那样，当在这段时间里 <code>JVM</code> 要发起<code>GC</code> 时，就不用管标识自己为 <code>Safe Region</code> 状态的线程了。在线程要离开 <code>Safe Region</code> 时，它要检查系统是否已经完成了根节点枚举（或者是整个 <code>GC</code> 过程），如果完成了，那线程就继续执行，否则它就必须等待直到收到信号可以安全离开 <code>Safe Region</code> 的信号为止。</p>
+<h1 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h1><p>如果说垃圾收集算法是内存回收的方法论，那么垃圾收集器就是内存回收的具体实现。</p>
+<p><code>HotSpot</code> 包含的所有收集器如下图（如果两个收集器中存在连线，就说明它们可以搭配使用）：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-e748cd20cec16404.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>明确两个概念：</p>
+<ul>
+<li><strong>并行（Parallel）：</strong>指多条垃圾线程并行工作，但此时用户线程仍处于等待状态。</li>
+<li><strong>并发（Concurrent）：</strong>指用户线程与垃圾收集线程同时执行（但不一定是并行，可能会交替执行），用户程序在继续运行，而垃圾收集程序运行在另一个 <code>CPU</code> 上。</li>
+</ul>
+<h2 id="Serial-收集器"><a href="#Serial-收集器" class="headerlink" title="Serial 收集器"></a>Serial 收集器</h2><p><code>Serial</code> 收集器是 <code>HotSpot</code> 运行在 <code>Client</code> 模式下的默认新生代收集器。</p>
+<p>特点：</p>
+<ul>
+<li><p>在进行垃圾收集时，必须暂停其他所有的工作线程，只用一个CPU或一条收集线程去完成垃圾收集工作。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-fb0037cf2d5b9e50.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>简单而高效（与其他收集器的单线程相比），对于限定单个 <code>CPU</code> 的环境来说，<code>Serial</code> 收集器由于没有线程交互的开销，专心做垃圾收集自然可以获得最高的单线程收集效率。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>在进行垃圾收集时，必须暂停其他所有的工作线程。</li>
+</ul>
+<h2 id="ParNew-收集器"><a href="#ParNew-收集器" class="headerlink" title="ParNew 收集器"></a>ParNew 收集器</h2><p><code>ParNew</code> 是运行在 <code>Server</code> 模式下的虚拟机中首选的新生代收集器。</p>
+<p>特点：</p>
+<ul>
+<li><p><code>ParNew</code> 其实就是 <code>Serial</code> 的多线程版，除了使用多条线程进行垃圾回收之外，其余行为和 <code>Serial</code> 收集器一模一样。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-52d315e89f9f2ce2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>默认开启了收集线程数与 <code>CPU</code> 的数量相同，在 <code>CPU</code> 非常多的情况下，效率能得到很大的提升。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>由于存在线程切换的开销, <code>ParNew</code> 在单 <code>CPU</code> 的环境中比不上 <code>Serial</code>, 且在通过超线程技术实现的两个 <code>CPU</code> 的环境中也不能100%保证能超越 <code>Serial</code>。</li>
+</ul>
+<h2 id="Parallel-Scavenge-收集器"><a href="#Parallel-Scavenge-收集器" class="headerlink" title="Parallel Scavenge 收集器"></a>Parallel Scavenge 收集器</h2><p><code>Parallerl Scavenge</code> 收集器是一个新生代收集器。它也使用复制算法的收集器，又是并行的多线程收集器。但是无法与 <code>CMS</code> 收集器配合工作。</p>
+<p>特点：</p>
+<ul>
+<li>它的关注点与其他收集器不同，<code>CMS</code> 等收集器的关注点是尽可能缩短垃圾收集时用户线程的停顿时间，而 <code>Parallel  Scavenge</code> 的目标则是达到一个可控的吞吐量（<code>Throughput</code>）。所谓的吞吐量就是 <code>CPU</code> 用于运行用户代码的时间与 <code>CPU</code> 总消耗时间的比值（虚拟机总共运行了 100 分钟，其中垃圾收集花费 1 分钟，那吞吐量就是 99%）。也被称为“吞吐量优先”收集器。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>停顿时间越短就越适合需要与用户交互的程序，良好的响应速度能提升用户体验，而高吞吐量则可以高效率地利用 <code>CPU</code> 时间，尽快完成程序的运算任务，主要适合在后台运算而不需要太多交互的任务。</li>
+</ul>
+<h2 id="Serial-Old-收集器"><a href="#Serial-Old-收集器" class="headerlink" title="Serial Old 收集器"></a>Serial Old 收集器</h2><p><code>Serial Old</code> 是 <code>Serial</code> 收集器的老年代版本，它同样是一个单线程收集器，使用“标记-整理”算法。这个收集器的主要意义也是在于给 <code>Client</code> 模式下的虚拟机使用。</p>
+<h2 id="Parallel-Old-收集器"><a href="#Parallel-Old-收集器" class="headerlink" title="Parallel Old 收集器"></a>Parallel Old 收集器</h2><p><code>Parallel Old</code> 是 <code>Parallel Scavenge</code> 收集器的老年代版本，使用多线程和“标记-整理”算法。</p>
+<p>在注重吞吐量和 <code>CPU</code> 资源敏感的场合，可优先使用 <code>Parallel Scavenge</code> + <code>Parallel Old</code> 组合。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-acf1faa038fcbfef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h2 id="CMS-收集器"><a href="#CMS-收集器" class="headerlink" title="CMS 收集器"></a>CMS 收集器</h2><p><code>CMS</code>（Concurrent Mark Sweep） 收集器是以<strong>获取最短回收停顿时间</strong>为目标的收集器。它是基于“标记-清除”算法的收集器，实现过程分为 4 个步骤：</p>
+<ol>
+<li><strong>初始标记</strong>（CMS initial mark） </li>
+<li><strong>并发标记</strong>（CMS concurrent mark） </li>
+<li><strong>重新标记</strong>（CMS remark）</li>
+<li><strong>并发标记</strong>（CMS concurrent sweep）</li>
+</ol>
+<p>其中，初始标记、重新标记这两个步骤任然需要“<code>Stop The World</code>”。初始标记仅仅是标记一下 <code>GC Roots</code> 能直接关联到的对象，速度很快，并发标记阶段就是进行 <code>GC Roots Tracing</code> 的过程，而重新标记阶段则是为了修正标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，这个阶段的停顿时间一般会比标记阶段稍长一些，但远比并发标记的时间短。 </p>
+<p>由于整个过程中耗时最长的并发标记和并发清除过程收集器线程都可以与用户线程一起工作，所以，从总体上来说，<code>CMS</code> 收集器的内存回收过程是与用户线程一起并发执行的。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-475a261d18cd556f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>优点：</p>
+<ul>
+<li>并发收集、低停顿。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><code>CMS</code> 收集器对 <code>CPU</code> 资源非常敏感。在并发阶段，会因为占用了一部分线程而导致应用程序变慢，总吞吐量会降低。</li>
+<li><code>CMS</code> 收集器无法处理浮动垃圾（<code>Floating Garbage</code>），可能出现“<code>Concurrent Mode Failure</code>”失败而导致另一次 <code>Full GC</code> 的产生。</li>
+<li><code>CMS</code> 是一款基于“标记-清除”算法实现的收集器，意味着收集结束时会有大量空间碎片产生。</li>
+</ul>
+<h2 id="G1-收集器"><a href="#G1-收集器" class="headerlink" title="G1 收集器"></a>G1 收集器</h2><p><code>G1</code> 是一款面向服务端应用的垃圾收集器。<code>HotSpot</code> 开发团队赋予它的使命是未来可以替换掉 <code>CMS</code> 收集器。</p>
+<p>特点：</p>
+<ul>
+<li><strong>并行和并发</strong>：<code>G1</code> 能够充分利用多 <code>CPU</code> ，多核环境下的硬件优势。</li>
+<li><strong>分代收集</strong>：虽然 <code>G1</code> 可以不需要其他收集器配合就能独立管理整个 <code>GC</code> 堆，但它能够采用不同的方式去处理新创建的对象和已经存活了一段时间、熬过多次 <code>GC</code> 的就对象以获取更好的收集效果。</li>
+<li><strong>空间整理</strong>：<code>G1</code> 从整体上来看是基于“标记-整理”算法实现的收集器，从局部（两个 <code>Region</code> 之间）上来看是基于“复制”算法实现的，这意味着 <code>G1</code> 运作期间不会产生内存空间碎片，收集后能提供规整的可用内存。</li>
+<li><strong>可预测的停顿</strong>：能让使用者明确指定在一个长度为 <code>M</code> 毫秒的时间片段内，消耗在垃圾收集上的时间不得超过 <code>N</code> 毫秒。</li>
+</ul>
+<p>在 <code>G1</code> 之前的其他收集器进行收集的范围都是整个新生代或者老年代，而 <code>G1</code> 不再是这样。使用 <code>G1</code> 收集器时，<code>Java</code> 堆的内存布局就与其他收集器有很大差别，它将整个 <code>Java</code> 堆划分为多个大小相等的独立区域（<code>Region</code>），虽然还保留有新生代和老年代的概念，但新生代和老年代不再是物理隔离的了，他们都是一部分<code>Region</code>（不需要连续）的集合。</p>
+<h1 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h1><p><code>Java</code> 体系中所提倡的<strong>自动内存管理</strong>最终可以归结为自动化地解决 2 个问题：</p>
+<ul>
+<li><p><strong>给对象分配内存</strong>： </p>
+<p>往大方向讲，就是在堆上分配（但也可能经过 <code>JIT</code> 编译后被拆散为标量类型并间接地栈上分配），对象主要分配在新生代的 <code>Eden</code> 区上，如果启动了本地线程分配缓冲(<code>TLAB</code>)，将按线程优先在 <code>TLAB</code>上分配。少数情况下会直接分配在老年代。</p>
+</li>
+<li><p><strong>回收分配给对象的内存</strong>： </p>
+<p><code>GC</code>。</p>
+</li>
+</ul>
+<h2 id="GC-的区别"><a href="#GC-的区别" class="headerlink" title="GC 的区别"></a>GC 的区别</h2><ul>
+<li>新生代 <code>GC</code>（<em>Minor GC</em>）：指发生在新生代的垃圾收集动作，因为 <code>Java</code> 对象大多都具备朝生夕灭的特性，所以<em>Minor GC</em> 非常频繁，一般回收速度也比较快。</li>
+<li>老年代 <code>GC</code>（<em>Major GC/Full GC</em>）：指发生在老年代的 <code>GC</code>，出现了 <code>Major GC</code>，经常会伴随至少一次的 <em>Minor GC</em>（但非绝对的，在 <code>Parallel Scavenge</code> 收集器策略里就有直接进行 <code>Major GC</code> 的策略选择过程）。<code>Major GC</code> 的速度一般会比 <code>Minor GC</code> 慢10倍以上。</li>
+</ul>
+<p><strong>内存分配策略：</strong> </p>
+<h2 id="对象优先在-Eden-分配"><a href="#对象优先在-Eden-分配" class="headerlink" title="对象优先在 Eden 分配"></a>对象优先在 Eden 分配</h2><p>大多数情况下，对象在新生代 <code>Eden</code> 区中分配。当 <code>Eden</code> 区没有足够空间进行分配时，虚拟机将发起一次 <code>Minor GC</code>。</p>
+<h2 id="大对象直接进入老年代"><a href="#大对象直接进入老年代" class="headerlink" title="大对象直接进入老年代"></a>大对象直接进入老年代</h2><p>所谓的大对象是指，需要大量连续内存空间的 <code>Java</code> 对象，最典型的大对象就是那种很长的字符串以及数组。</p>
+<h2 id="长期存活的对象将进入老年代"><a href="#长期存活的对象将进入老年代" class="headerlink" title="长期存活的对象将进入老年代"></a>长期存活的对象将进入老年代</h2><p>虚拟机采用了分代收集的思想来管理内存。虚拟机给每个对象定义了一个对象年龄（<code>Age</code>）计数器。如果对象在 <code>Eden</code> 出生并经过第一次 <code>Minor GC</code> 后仍然存活，并且能被 <code>Survivor</code> 容纳的话，将被移动到 <code>Survivor</code> 空间中，并且对象年龄设为 <strong>1</strong>。对象在 <code>Survivor</code> 区中每“熬过”一次 <code>Minor GC</code>，年龄就增加 <strong>1</strong> 岁，当它的年龄增加到一定程度（默认为 <strong>15</strong> 岁），就将会被晋升到老年代中。</p>
+<h2 id="动态对象年龄判断"><a href="#动态对象年龄判断" class="headerlink" title="动态对象年龄判断"></a>动态对象年龄判断</h2><p>为了能更好地适应不同程序的内存状况，虚拟机并不是永远地要求对象的年龄必须达到了 <code>MaxTenuringTreshold</code> 才能晋升老年代，如果在 <code>Survivor</code> 空间中相同年龄所有对象大小的总和大于 <code>Survivor</code> 空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，无须等到 <code>MaxtenuringThreshold</code> 中要求的年龄。</p>
+<h2 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h2><p>在发生 <code>Minor GC</code> 之前，虚拟机会先检查老年代最大可用的连续空间是否大于新生代所有对象总空间，如果这个条件成立，那么 <code>Minor GC</code> 可以确保是安全的。如果不成立，则虚拟机会查看 <code>HandlePromotionFailure</code> 设置值是否允许担保失败。如果允许，那么会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，将尝试着进行一次 <code>Minor GC</code>，<strong>尽管这次 Minor GC 是有风险的</strong>；如果小于，或者<strong>HandlePromotionFailure设置不允许冒险</strong>，那这时也要改为进行一次 <code>Full GC</code>。</p>
+<p><strong>上述风险的原因：</strong>新生代使用复制收集算法，但为了内存利用率，只使用其中一个 <code>Survivor</code> 空间来作为轮换备份，因此当出现大量对象在 <code>Minor GC</code> 后仍然存活的情况（最极端的情况就是内存回收后新生代中所有对象都存活），就需要老年代进行分配担保，把 <code>Survivor</code> 无法容纳的对象直接进入老年代。</p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/07/24/JVM(一) - Java 内存区域/" data-toggle="tooltip" data-placement="top" title="JVM(一) - Java 内存区域">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#概述"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">概述</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#对象已死吗"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">对象已死吗</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#引用指数算法"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">引用指数算法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#可达性算法"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">可达性算法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#再谈引用"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">再谈引用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#强引用（Strong-Reference）"><span class="toc-nav-number">2.3.1.</span> <span class="toc-nav-text">强引用（Strong Reference）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#软引用（Soft-Reference）"><span class="toc-nav-number">2.3.2.</span> <span class="toc-nav-text">软引用（Soft Reference）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#弱引用（Weak-Reference）"><span class="toc-nav-number">2.3.3.</span> <span class="toc-nav-text">弱引用（Weak Reference）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#虚引用（Phantom-Reference）"><span class="toc-nav-number">2.3.4.</span> <span class="toc-nav-text">虚引用（Phantom Reference）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#生存还是死亡"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">生存还是死亡</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#回收方法区"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">回收方法区</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#垃圾收集算法"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">垃圾收集算法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#标记-清除算法"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">标记-清除算法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#标记-整理算法"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">标记-整理算法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#分代收集算法"><span class="toc-nav-number">3.3.</span> <span class="toc-nav-text">分代收集算法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#HotSpot-的算法实现"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">HotSpot 的算法实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#枚举根节点"><span class="toc-nav-number">4.1.</span> <span class="toc-nav-text">枚举根节点</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安全点"><span class="toc-nav-number">4.2.</span> <span class="toc-nav-text">安全点</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安全区域"><span class="toc-nav-number">4.3.</span> <span class="toc-nav-text">安全区域</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#垃圾收集器"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">垃圾收集器</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Serial-收集器"><span class="toc-nav-number">5.1.</span> <span class="toc-nav-text">Serial 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#ParNew-收集器"><span class="toc-nav-number">5.2.</span> <span class="toc-nav-text">ParNew 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Parallel-Scavenge-收集器"><span class="toc-nav-number">5.3.</span> <span class="toc-nav-text">Parallel Scavenge 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Serial-Old-收集器"><span class="toc-nav-number">5.4.</span> <span class="toc-nav-text">Serial Old 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Parallel-Old-收集器"><span class="toc-nav-number">5.5.</span> <span class="toc-nav-text">Parallel Old 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#CMS-收集器"><span class="toc-nav-number">5.6.</span> <span class="toc-nav-text">CMS 收集器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#G1-收集器"><span class="toc-nav-number">5.7.</span> <span class="toc-nav-text">G1 收集器</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#内存分配与回收策略"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">内存分配与回收策略</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#GC-的区别"><span class="toc-nav-number">6.1.</span> <span class="toc-nav-text">GC 的区别</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#对象优先在-Eden-分配"><span class="toc-nav-number">6.2.</span> <span class="toc-nav-text">对象优先在 Eden 分配</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#大对象直接进入老年代"><span class="toc-nav-number">6.3.</span> <span class="toc-nav-text">大对象直接进入老年代</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#长期存活的对象将进入老年代"><span class="toc-nav-number">6.4.</span> <span class="toc-nav-text">长期存活的对象将进入老年代</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#动态对象年龄判断"><span class="toc-nav-number">6.5.</span> <span class="toc-nav-text">动态对象年龄判断</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#空间分配担保"><span class="toc-nav-number">6.6.</span> <span class="toc-nav-text">空间分配担保</span></a></li></ol></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
