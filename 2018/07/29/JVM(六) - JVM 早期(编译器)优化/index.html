@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          JVM(六) - JVM 早期(编译器)优化 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/07/29/JVM(六) - JVM 早期(编译器)优化/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#JVM" title="JVM">JVM</a>
+                            
+                        </div>
+                        <h1>JVM(六) - JVM 早期(编译器)优化</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-07-29
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p><strong>JVM 的编译器可以分为三类编译器：</strong></p>
+<ol>
+<li>前端编译器：把 <code>*.java</code> 转变为 <code>*.class</code> 的过程。如 <code>Sun</code> 的 <code>Javac</code> 、<code>Eclipse JDT</code> 中的增量式编译器（<code>ECJ</code>）。</li>
+<li><code>JIT</code> 编译器：把字节码转变为机器码的过程，如 <code>HotSpot VM</code> 的 <code>C1</code>、<code>C2</code> 编译器。</li>
+<li><code>AOT</code> 编译器：静态提前编译器，直接将 <code>*.java</code> 文件编译本地机器代码的过程。</li>
+</ol>
+<p><strong>本节讲述的仅限于第一类编译过程</strong></p>
+<h1 id="Javac-编译器"><a href="#Javac-编译器" class="headerlink" title="Javac 编译器"></a>Javac 编译器</h1><p><code>Javac</code> 编译器本身是由 <code>Java</code> 语言编写的程序。</p>
+<p>编译过程大致可以分为 3 个过程：</p>
+<ol>
+<li>解析与填充符号表过程。</li>
+<li>插入式注解处理器的注解处理过程。</li>
+<li>分析与字节码生成过程。</li>
+</ol>
+<p>这 3 个步骤之间的关系与交互顺序如下：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-d42730bee0899b0b.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h2 id="解析与填充符号表"><a href="#解析与填充符号表" class="headerlink" title="解析与填充符号表"></a>解析与填充符号表</h2><p>解析步骤包括了<strong>词法分析</strong>和<strong>语法分析</strong>两个过程。</p>
+<h3 id="词法分析与语法分析"><a href="#词法分析与语法分析" class="headerlink" title="词法分析与语法分析"></a>词法分析与语法分析</h3><p><strong>词法分析</strong> ：将源代码的字符流转变为标记（<code>Token</code>）集合，单个字符是程序编写过程的最小元素，而标记则是编译过程的最小元素，关键字，变量名，字面量、运算符都可以成为标记。如 “int a=b+2” 这句代码就包含了6个标记，分别是int、a、=、b、+、2。</p>
+<p><strong>语法分析</strong>：根据 <code>Token</code> 序列构造抽象语法树的过程，抽象语法树是一种用来描述<strong>程序代码语法结构</strong>的<strong>树形</strong>表述方式。语法树的每一个节点都代表着程序代码的一个语法结构，例如包、类型、修饰符、接口、返回值甚至代码注释都可以是一个语法结构。</p>
+<p><strong>经过这个步骤之后，编译器就基本不会再对源码文件进行操作了，后续的操作都是建立在抽象语法树之上的。</strong></p>
+<h3 id="填充符号表"><a href="#填充符号表" class="headerlink" title="填充符号表"></a>填充符号表</h3><p>完成抽象语法树之后，下一步就是填充符号表的过程，即 <code>enterTrees()</code> 方法。符号表是由一组<strong>符号地址</strong>和<strong>符号信息</strong>构成的表格，类似于哈希表中 <code>K-V</code> 值对的形式。符号表中所登记的信息在编译的不同阶段都要用到。当对符号名进行地址分配时，符号表是地址分配的依据。</p>
+<h2 id="注解处理器"><a href="#注解处理器" class="headerlink" title="注解处理器"></a>注解处理器</h2><p><code>JDK 1.5</code> 之后，<code>Java</code> 提供了对注解的支持，这些注解与普通的 <code>Java</code> 代码一样，在运行期间发挥作用。</p>
+<p>可以把它看做是一组编译器的插件，在这些插件里面，可以读取、修改、添加抽象语法树中的任意元素。如果这些插件在处理注解期间对语法树进行了修改，编译器将回到解析及填充符号表的过程重新处理，直到所有的插入式注解处理器都没有再对语法树进行修改为止，每一次循环称为一个 <code>Round</code>。也是上图中的回环过程。</p>
+<h2 id="语义分析与字节码生成"><a href="#语义分析与字节码生成" class="headerlink" title="语义分析与字节码生成"></a>语义分析与字节码生成</h2><p>语法分析之后，编译器获得了程序代码的抽象语法树表示，语法树能表示一个结构正确的源代码抽象，但无法保证源程序是符合逻辑的。而语义分析的主要任务是对结构上正确的源程序进行上下文有关性质的审查，如进行类型审查。</p>
+<p>在 <code>Javac</code> 的编译过程中，语法分析过程分为<strong>标注检查</strong>以及<strong>数据及控制流分析</strong>两个步骤。</p>
+<ul>
+<li><p><strong>标注检查</strong>：</p>
+<p>标注检查步骤检查的内容包括诸如：变量使用前是否已被声明、变量与赋值之间的数据类型是否能够匹配等。此外，这个过程中还有一个重要的步骤称为常量折叠，如定义<br><code>int a = 1 + 2</code> 和 <code>int a = 3</code> 是一样的。</p>
+</li>
+<li><p><strong>数据及控制流分析</strong>：</p>
+<p>数据及控制流分析是对程序上下文逻辑更进一步的验证，它可以查出诸如程序员局部变量在使用前是否有赋值、方法的每条路径是否都有返回值、是否所有的受查异常都被正确处理了等问题。<br>编译期的数据及控制流分析与类加载时的数据及数据流分析的目的基本上是一致的，但校验范围有所区别，有一些校验项只有在编译期或者运行期才能进行。如将局部变量声明为<code>final</code> ，对运行期是没有影响的，变量的不变性仅仅由编译器在编译期间保障。</p>
+</li>
+<li><p><strong>解语法糖</strong>：</p>
+<p>语法糖是指在计算机语言中添加某种语法，这种语法对语言的功能并没有影响，但是更方便程序员使用。<br><code>Java</code> 是一种“低糖语言”，常用的语法糖主要是之前提到的泛型、变长参数、自动装箱/拆箱等。虚拟机运行时不支持这些语法，它们在编译期还原回简单的基础语法结构，这个过程称为解语法糖。</p>
+</li>
+<li><p><strong>字节码生成</strong>：</p>
+<p>字节码生成是 <code>Javac</code> 编译过程的最后一个阶段，字节码生成阶段不仅仅是把前面各个步骤所生成的信息（语法树、符号表）转化为字节码写入磁盘中，编译器还进行了少量代码添加和转换工作。<br>实例构造器 <code>&lt; init &gt;</code>方法和类构造器 <code>&lt; clinit &gt;</code> 方法就是在这个阶段添加到语法树中的。</p>
+</li>
+</ul>
+<h1 id="Java-语法糖"><a href="#Java-语法糖" class="headerlink" title="Java 语法糖"></a>Java 语法糖</h1><h2 id="泛型和类型擦除"><a href="#泛型和类型擦除" class="headerlink" title="泛型和类型擦除"></a>泛型和类型擦除</h2><p>与 <code>C#</code>的泛型不一样的是，<code>Java</code> 的泛型只存在于程序源码中，<strong>在编译后的字节码文件中，就已经替换成原来的原生类型，也称为裸类型，并且在相应的地方插入了强制转型代码</strong>。</p>
+<p>对于运行期的 <code>Java</code> 语言来说，<code>ArrayList&lt; String &gt;</code> 与 <code>ArrayList&lt; Integer &gt;</code> 就是同一个类，所以<strong>泛型技术实际上是 Java 语言的一颗语法糖，Java 语言中的泛型实现方法称为类型擦除，基于这种方法实现的泛型称为伪泛型。</strong></p>
+<p>故当方法名一样，<code>List&lt; String &gt;</code> 和 <code>List&lt; Integer &gt;</code> 作为参数时，擦除使得两者的特征签名变得一样，导致拥有这两个方法无法重载。即，以下代码编译无法通过：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FanxingTest</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">method</span><span class="params">(List&lt;String&gt; list)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"List String"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">method</span><span class="params">(List&lt;Integer&gt; list)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"List Int"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>擦除法所谓的擦除，仅仅是对方的 <code>Code</code> 属性中的字节码进行擦除，实际上元数据中还是保留了泛型信息，这也是我们能通过反射手段取得参数化类型的根本依据。</p>
+<h2 id="自动装箱、拆箱与便利循环"><a href="#自动装箱、拆箱与便利循环" class="headerlink" title="自动装箱、拆箱与便利循环"></a>自动装箱、拆箱与便利循环</h2><p>自动装箱、拆箱在编译之后就被转换成了相应的包装和还原方法，如 <code>Integer.valueOf()</code> 与<code>Integer.intValue()</code> 方法，而遍历循环则把代码还原成了迭代器的实现，这也是为何遍历循环需要被遍历类实现 <code>Iterable</code> 接口的原因。</p>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Integer a = <span class="number">1</span>;</span><br><span class="line">        Integer b = <span class="number">2</span>;</span><br><span class="line">        Integer c = <span class="number">3</span>;</span><br><span class="line">        Integer d = <span class="number">3</span>;</span><br><span class="line">        Integer e = <span class="number">321</span>;</span><br><span class="line">        Integer f = <span class="number">321</span>;</span><br><span class="line">        Long g = <span class="number">3L</span>;</span><br><span class="line">        Long h = <span class="number">2L</span>;</span><br><span class="line">         </span><br><span class="line">        System.out.println(c==d);</span><br><span class="line">        System.out.println(e==f);</span><br><span class="line">        System.out.println(c==(a+b));</span><br><span class="line">        System.out.println(c.equals(a+b));</span><br><span class="line">        System.out.println(g==(a+b));</span><br><span class="line">        System.out.println(g.equals(a+b));</span><br><span class="line">        System.out.println(g.equals(a+h));</span><br><span class="line">        System.out.println(a==b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">true</span></span><br><span class="line"><span class="keyword">false</span></span><br><span class="line"><span class="keyword">true</span></span><br><span class="line"><span class="keyword">true</span></span><br><span class="line"><span class="keyword">true</span></span><br><span class="line"><span class="keyword">false</span></span><br><span class="line"><span class="keyword">true</span></span><br><span class="line"><span class="keyword">false</span></span><br></pre></td></tr></table></figure>
+<p><code>valueOf()</code> 源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns an &#123;<span class="doctag">@code</span> Integer&#125; instance representing the specified</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@code</span> int&#125; value.  If a new &#123;<span class="doctag">@code</span> Integer&#125; instance is not</span></span><br><span class="line"><span class="comment">   * required, this method should generally be used in preference to</span></span><br><span class="line"><span class="comment">   * the constructor &#123;<span class="doctag">@link</span> #Integer(int)&#125;, as this method is likely</span></span><br><span class="line"><span class="comment">   * to yield significantly better space and time performance by</span></span><br><span class="line"><span class="comment">   * caching frequently requested values.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * This method will always cache values in the range -128 to 127,</span></span><br><span class="line"><span class="comment">   * inclusive, and may cache other values outside of this range.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span>  i an &#123;<span class="doctag">@code</span> int&#125; value.</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@return</span> an &#123;<span class="doctag">@code</span> Integer&#125; instance representing &#123;<span class="doctag">@code</span> i&#125;.</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@since</span>  1.5</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">valueOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">          <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> Integer(i);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>从源码中可见，<code>Integer</code> 对象内部有 <code>IntegerCache</code> 类，可缓存（-128 - 127范围的数值），如果超过了，则会返回一个新的 <code>Integer</code> 类。由于“==”比较的是内存地址，因此，在 “-128~127” 数值范围内，比较的是同一个对象，得到 <code>true</code>，而超过了该范围，则是返回自动装箱后的新对象，因此得到 <code>false</code>。</p>
+<p><strong>总结：</strong></p>
+<ol>
+<li><code>Integer</code>（-128 - 127）、<code>Short</code>（-128 - 127）、<code>Byte</code>（-128 - 127）、<code>Character</code>（0 - 127）、<code>Long</code>（-128 - 127）这几个包装类的 <code>valueOf</code> 方法的实现是类似的。</li>
+<li><code>Double</code>、<code>Float</code> 的 <code>valueOf()</code> 方法的实现是类似的，并没有缓存，直接返回一个新的实例化对象。</li>
+<li><code>Boolean</code> 的 <code>valueOf()</code> 方法的实现是个三目运算，形如 <code>return (b ? TRUE : FALSE); TRUE、FALSE</code> 为两个内部定义的静态成员，这里直接返回两者其一。</li>
+<li>当 “==” 运算符的两个操作数都是<strong>包装器类型的引用</strong>，则是比较指向的是否是同一个对象，而如果其中有一个操作数是<strong>表达式</strong>（即包含算术运算）则比较的是<strong>数值</strong>（即会触发自动拆箱的过程）。另外，对于包装器类型，<code>equals()</code> 方法并不会进行类型转换。</li>
+</ol>
+<h2 id="条件编译"><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h2><p><code>Java</code> 语言使用条件为常量的 <code>if</code> 语句，此代码中的 <code>if</code> 语句不同于其他 <code>Java</code> 代码，它在编译阶段就会被运行，生成的字节码之中只包含条件正确的部分。<br><code>Java</code> 语言中条件编译的实现，也是 <code>Java</code> 语言的一颗语法糖，根据布尔常量值的真假，编译器将会把分支中不成立的代码块消除掉，这是在解语法糖阶段实现的。<strong>而while(false){ } 这样的代码块是通过不了编译的，会提示“Unreachable code”</strong></p>
+<p><code>Java</code> 语言中还有不少的其他语言糖，如内部类、枚举类、断言语句、对枚举和字符串的 <code>switch</code> 支持、<code>try</code> 语句中定义和关闭资源等等。</p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/07/28/JVM(五) - 虚拟机字节码执行机制/" data-toggle="tooltip" data-placement="top" title="JVM(五) - 虚拟机字节码执行机制">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#概述"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">概述</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Javac-编译器"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">Javac 编译器</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#解析与填充符号表"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">解析与填充符号表</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#词法分析与语法分析"><span class="toc-nav-number">2.1.1.</span> <span class="toc-nav-text">词法分析与语法分析</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#填充符号表"><span class="toc-nav-number">2.1.2.</span> <span class="toc-nav-text">填充符号表</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#注解处理器"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">注解处理器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#语义分析与字节码生成"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">语义分析与字节码生成</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Java-语法糖"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">Java 语法糖</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#泛型和类型擦除"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">泛型和类型擦除</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#自动装箱、拆箱与便利循环"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">自动装箱、拆箱与便利循环</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#条件编译"><span class="toc-nav-number">3.3.</span> <span class="toc-nav-text">条件编译</span></a></li></ol></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/07/29/JVM(六) - JVM 早期(编译器)优化/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/07/29/JVM(六) - JVM 早期(编译器)优化/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
