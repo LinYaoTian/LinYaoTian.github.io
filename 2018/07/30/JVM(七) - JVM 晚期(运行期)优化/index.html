@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          JVM(七) - JVM 晚期(运行期)优化 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/07/30/JVM(七) - JVM 晚期(运行期)优化/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#JVM" title="JVM">JVM</a>
+                            
+                        </div>
+                        <h1>JVM(七) - JVM 晚期(运行期)优化</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-07-30
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p><code>Java</code> 程序在运行期间，可能会有某个方法或者代码运行特别频繁时，就会把这些代码认定为“热点代码”。为了提高热点代码的执行效率，在运行时 <code>JVM</code> 会将这些代码编译成与本地平台相关的机器码，并进行各种层次的优化，完成这个任务的编译器称为即时编译器（<code>Just In Time Compiler</code>，<strong>JIT 编译器</strong>）。</p>
+<h1 id="解释器和编译器"><a href="#解释器和编译器" class="headerlink" title="解释器和编译器"></a>解释器和编译器</h1><p>事实上，现在许多主流的商用虚拟机，都同时包含有解释器与编译器，解释器与编译器两者各有优势。与解释器相比，编译器会将常运行到的代码编译成本地代码区实现，可以获取更高的执行效率。而当程序运行环境中内存资源限制较大时，可以使用解释执行节约内存，反之可以使用编译执行来提高效率。解释器和编译器之间还可以通过逆优化退回到解释状态继续执行，因此，在整个虚拟机执行架构中，解释器与编译器经常配合工作。</p>
+<p>关系如图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-10a547b3f679249d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><code>HotSpot</code> 虚拟机中内置了两个 <code>JIT</code> 编译器：<code>Client Complier</code>(C1 编辑器) 和 <code>Server Complier</code>(C2 编辑器)，分别用在客户端和服务端。目前主流的 <code>HotSpot</code> 虚拟机中默认是采用解释器与其中一个编译器直接配合的方式工作。</p>
+<p>为了在程序启动响应速度与运行效率之间达到最佳平衡，<code>HotSpot</code> 虚拟机还会逐渐启动<strong>分层编译</strong>的策略，分层编译根据编译器编译、优化的规模与耗时，划分出不同的编译层次，其中包括：</p>
+<ul>
+<li>第0层，程序解释执行，解释器不开启性能监控功能，可触发第1层编译。</li>
+<li>第1层，也称为 C1编译，将字节码编译为本地代码，进行简单、可靠的优化，如有必要时将加入性能监控的逻辑。</li>
+<li>第2层（或2层以上）：也成为 C2编译，也是将字节码编译为本地代码，但是会启动一些编译耗时较长的优化，甚至会根据性能监控信息进行一些不可靠的激进优化。</li>
+</ul>
+<p><strong>事实上，用Client Compiler获取更高的编译速度，用Server Compiler来获取更好的编译质量，在解释执行的时候也无须再承担收集性能监控信息的任务。</strong></p>
+<h1 id="编译对象与触发条件"><a href="#编译对象与触发条件" class="headerlink" title="编译对象与触发条件"></a>编译对象与触发条件</h1><h2 id="编译对象"><a href="#编译对象" class="headerlink" title="编译对象"></a>编译对象</h2><p>在运行过程中会被即时编译器编译的“热点代码”有两类：</p>
+<ul>
+<li>被多次调用的方法。</li>
+<li>被多次执行的循环体。</li>
+</ul>
+<p>对于第一种情况，由于是由方法调用触发的编译，因此编译器会以整个方法作为编译对象，这种编译也是虚拟机中标准的 <code>JIT</code> 编译方式。而对于第二种方式，尽管编译动作是循环体所触发的，但编译器仍然会以整个方法作为编译对象，这种编译方式因为发生在方法执行过程中，因此形象地被称为<strong>栈上替换</strong>，简称 <code>OSR</code> 编译，即方法栈帧还在栈上，方法就被替换了。</p>
+<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>判断一段代码是不是热点代码，是不是需要出发即时编译，这种行为成为<strong>热点探测</strong>，但进行热点探测也不一定要知道方法具体调用了多少次，目前主要的热点探测判定方法有两种：</p>
+<ul>
+<li><p><strong>基于采样的热点探测</strong>：</p>
+<p>虚拟机会周期性地检查各种线程的栈顶，如果发现某个或者某些方法经常会出现在栈顶，那这个方法就是“热点方法”。</p>
+<ul>
+<li><p><strong>优点</strong>：</p>
+<p>实现简单、高效，还可以很容易地获取方法调用关系。</p>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<p>很难精确地确认一个方法的热度，容易因为受到线程阻塞 或者别的外界因素的影响而干扰热点探测。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>基于计数器的热点探测</strong>：</p>
+<p>虚拟机会为每个方法，甚至是代码块建立计数器，统计方法的执行次数，如果珍执行次数超过一定的阈值，就认为它是“热点方法”。</p>
+<ul>
+<li><p><strong>优点</strong>：</p>
+<p>统计结构相对来说更加精确与严谨。</p>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<p>实现起来麻烦，需要为每个方法建立并维护计数器，而且不能获取到方法的调用关系。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>在 <code>HotSpot</code> 中使用的是第二种方法，<strong>基于计数器的热点探测法</strong>，因此它为每个方法准备了两类计数器：<strong>方法调用计数器</strong>和<strong>回边计数器</strong>（回边计数器是统计一个方法中循环体代码执行的次数，在字节码中遇到控制流向后跳转的指令称为”回边“；显然，建立回边计数器统计的目的是为了触发 <code>OSR</code> 编译）</p>
+<ul>
+<li><p><strong>方法调用计数器（统计方法被调用次数）</strong></p>
+<p>当一个方法被调用时，会先检查该方法是否存在被 <code>JIT</code> 编译过的版本，如果存在，则优先使用编译后的本地代码来执行。如果不存在已被编译过的代码，则将此方法的调用计数器值加 1 ，然后判断调用计数器与回边计数器值之和是否超过计数器的阈值。若超过了，则会向即时编译器提交一个该方法的代码编译请求。</p>
+<p>整个 <code>JIT</code> 编译的交互过程如下：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-cb8359fbf99387aa.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>​</p>
+</li>
+<li><p><strong>回边计数器（统计方法循环体代码执行次数）</strong></p>
+<p>当解释器遇到一条回边指令时，会先查找将要执行的代码片段是否有已经编译好的 <code>Version</code> ，如果有，他将会优先执行已编译的代码，否则就把回边计数器的值加 1 ，判断方法调用计数器与回边计数器之和是否超过回边计数器的阈值。当超过阈值时，将会提交一个 <code>OSR</code> 编译请求，并且把回边计数器的值降低一些，以便继续在解释器中执行循环，等待编译器输出编译结果，整个执行过程如下图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-e72f27b09a29987f.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>​</p>
+</li>
+</ul>
+<h1 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h1><p><strong>在默认设置下，无论是方法调用产生即使编译请求，还是OSR编译请求，虚拟机在代码编译器还未完成之前，都仍然将按照解释方式继续执行，而编译动作则在后台的编译线程中进行。</strong></p>
+<p><strong>在后台执行编译的过程中，对于Client Compiler来说，</strong>它是一个简单快速的三段式编译器，主要的关注点在于局部性的优化，而放弃了许多耗时较长的全局优化手段。</p>
+<ol>
+<li>一个平台独立前段将字节码构造成一种高级中间代码表示（<code>HIR</code>），<code>HIR</code> 使用 静态单分配的形式来表示代码值，这可以使得一些在 <code>JIR</code> 的构造过程之中和之后进行的优化动作更容易实现。在此之前，编译器会在字节码上完成一部分基础优化，如方法内联、常量传播等。</li>
+<li>一个平台相关的后端从 <code>HIR</code> 中产生低级中间代码表示，而在此之前，在 <code>HIR</code> 上完成另外一些优化， 如空值检查消除、范围检查消除等。</li>
+<li>在平台的后端使用线性扫描算法在 <code>LIR</code> 上分配寄存器，并在 <code>LIR</code> 上做窥孔优化，然后产生机器代码。</li>
+</ol>
+<p>过程如图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-a084107ecfa58741.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><strong>对于 Server Compiler 则是</strong>专门面向服务端的典型应用并为服务端的性能配置特别调整过的编译期，也是一个充分优化过的高级编译器，它会执行所有经典的优化动作。<br><code>Server Compiler</code> 的寄存器分配器是一个全局图着色分配器，它可以充分利用某些处理器架构上的大寄存器集合。所以它也是比较缓慢的，但是编译代码质量高，可以减少本地代码的执行时间，从而抵消了额外的编译时间开销，所以很多非服务端的应用选择使用 <code>server</code> 模式的虚拟机运行。</p>
+<h1 id="编译优化技术"><a href="#编译优化技术" class="headerlink" title="编译优化技术"></a>编译优化技术</h1><p>虚拟机中的具有代表性的优化技术：<br><strong>语言无关的经典优化技术之一：公共子表达式消除</strong><br><strong>语言相关的经典优化技术之一：数组范围检查消除</strong><br><strong>最重要的优化技术之一：方法内联</strong><br><strong>最前沿的优化技术之一：逃逸分析</strong></p>
+<ul>
+<li><p><strong>公共子表达式消除</strong><br>如果一个表达式 <code>E</code> 已经计算过了，并且从先前的计算到现在 <code>E</code> 中所有变量的值都没有发生变化，那 <code>E</code> 的这次出现就成公共子表达式，可以用原先的表达式进行消除。</p>
+</li>
+<li><p><strong>数组边界检查消除</strong><br>系统将自动进行数组上下界的范围检查。<br>隐式异常处理：<code>Java</code> 中空指针和算术运算中除数为零的检查。此外还有：自动装箱消除、安全点消除、消除反射等等。</p>
+</li>
+<li><p><strong>方法内联</strong><br>把目标方法的代码“复制”到发起调用的方法之中，避免发生真实的方法调用。</p>
+</li>
+<li><p><strong>逃逸分析</strong><br>分析对象的动态作用域：</p>
+<ul>
+<li>当一个对象在方法中被定义后，它可能被外部方法所引用，例如作为调用参数传递给其他方法，称为<strong>方法逃逸</strong>。</li>
+<li>甚至还有可能被外部线程访问到，比如赋值给类变量或可以在其他线程中访问到的实例变量，称为<strong>线程逃逸</strong>。</li>
+</ul>
+<p>如果能证明一个对象不会逃逸到方法或线程之外，也就是别的方法或线程无法通过任何途径访问到这个对象，就可以为这个变量进行一些高效的优化：如：栈上分配（在栈上分配内存）、同步消除（消除线程同步操作）、标量替换等。</p>
+</li>
+</ul>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/07/29/JVM(六) - JVM 早期(编译器)优化/" data-toggle="tooltip" data-placement="top" title="JVM(六) - JVM 早期(编译器)优化">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#概述"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">概述</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#解释器和编译器"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">解释器和编译器</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#编译对象与触发条件"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">编译对象与触发条件</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#编译对象"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">编译对象</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#触发条件"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">触发条件</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#编译过程"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">编译过程</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#编译优化技术"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">编译优化技术</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/07/30/JVM(七) - JVM 晚期(运行期)优化/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/07/30/JVM(七) - JVM 晚期(运行期)优化/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
