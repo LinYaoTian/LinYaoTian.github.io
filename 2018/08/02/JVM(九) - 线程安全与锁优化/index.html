@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          JVM(九) - 线程优化与锁优化 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/08/02/JVM(九) - 线程安全与锁优化/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#JVM" title="JVM">JVM</a>
+                            
+                        </div>
+                        <h1>JVM(九) - 线程优化与锁优化</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-08-02
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h1><p>当多个线程访问同一个对象时，如果不考虑这些线程在运行时环境下的调度和交替进行，也不需要进行额外的同步，或者在调用方进行任何的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。</p>
+<h2 id="Java-语言中的线程安全"><a href="#Java-语言中的线程安全" class="headerlink" title="Java 语言中的线程安全"></a>Java 语言中的线程安全</h2><p><code>Java</code> 中各种操作共享的数据分为以下 5 类：</p>
+<ul>
+<li><p><strong>不可变对象：</strong> </p>
+<p>该对象一定是线程安全的，无论是对象的方法实现还是方法的调用者，都不需要采取任何的线程安全保障措施；如果共享数据是一个基本数据类型，那么只要在定义时使用 <code>final</code> 关键字修饰它就可以保证它是不可变的。<br><code>String</code> 是一个典型的不可变类型，调用它的 <code>substring()</code> ，<code>replace()</code> ，<code>concat()</code> 这些方法都不会影响它原来的值，只会返回一个新构造的字符串变量。</p>
+</li>
+<li><p><strong>绝对线程安全：</strong></p>
+<p>在 <code>Java</code> <code>API</code> 中标注自己是线程安全的类，大多数都不是绝对线程安全。如 <code>java.util.Vector</code> 是一个线程安全的容器，因为它的 <code>add()</code> 方法，<code>get()</code> 方法，<code>size()</code> 方法这些方法都是被 <code>synchronized</code> 修饰的，尽管效率低下，但确实是安全的；如果在一个线程里删除一个元素 <code>i</code> ，导致序号 <code>i</code> 已经不再可用的话，另一线程同时用 <code>i</code> 访问数组就会抛出 <code>ArrayIndexOutOfBoundsException</code> 。因此需做修改，在多线程中添加同步块，即 <code>synchronized(vector)</code> 。</p>
+</li>
+<li><p><strong>相对线程安全：</strong></p>
+<p>单独对对象做操作是线程安全的，对于一些特定的顺序连续调用，就可能需要在调用端使用额外的同步手段来保证操作的正确性。</p>
+<p>在 <code>Java</code> 语言中，大部分的线程安全类都属于这种类型，例如 <code>Vector</code> 、<code>HashTable</code>、<code>Collections</code> 的 <code>synchronizedCollection()</code> 方法包装的集合。 </p>
+</li>
+<li><p><strong>线程兼容：</strong></p>
+<p>线程兼容是指对象本身并不是线程安全的，但是可以通过调用端正确地使用同步手段来保证对象在并发环境中可以安全地使用。<br>在 <code>Java</code> 中大部分的类属于线程兼容，如 <code>ArrayList</code> 和 <code>HashMap</code> 等。</p>
+</li>
+<li><p><strong>线程对立：</strong></p>
+<p>指无论调用端是否采取同步措施，都无法在多线程环境中并发使用的代码。由于 <code>Java</code> 语言天生就具备多线程特性，线程对立这种排斥多线程的代码是很少出现的，而且通常是有害的，应当尽量避免。</p>
+</li>
+</ul>
+<h2 id="线程安全的实现方法"><a href="#线程安全的实现方法" class="headerlink" title="线程安全的实现方法"></a>线程安全的实现方法</h2><h3 id="互斥同步"><a href="#互斥同步" class="headerlink" title="互斥同步"></a>互斥同步</h3><p><strong>同步：</strong>是指在多个线程并发访问共享数据时，保证共享数据在同一个时刻被一个线程使用。</p>
+<p><strong>互斥：</strong>互斥是实现同步的一种手段；临界区，互斥量和信号量都是主要的互斥实现方式。因此，在这 4 个字里，互斥是因，同步是果；互斥是方法，同步是目的。</p>
+<p><strong>最基本的互斥同步手段就是 synchronized 关键字：</strong><code>synchronized</code> 关键经过编译之后，会在同步块的前后分别形成 <code>monitorenter</code> 和 <code>monitorexit</code> 这两个字节码指令，这两个字节码都需要一个 <code>reference</code> 类型的参数来指明要锁定的和解锁的对象。如果 <code>Java</code> 程序中的 <code>synchronized</code> 明确指定了对象参数，那就是这个对象的 <code>reference</code> 。如果没有明确指定，那就根据 <code>synchronized</code> 修饰的实例方法还是类方法，去取对应的对象实例或 <code>Class</code> 对象来作为锁对象。<br><strong>根据虚拟机规范的要求：</strong>在执行 <code>monitorenter</code> 指令时，如果这个对象没有锁定或当前线程已经拥有了那个对象的锁，锁的计数器加 1，相应的，在执行 <code>monitorexit</code> 指令时会将锁计数器减 1；当计数器为 0 时，锁就被释放了；</p>
+<p><strong>除了synchronized之外，还可以使用 java.util.concurrent 包中的重入锁（ReentrantLock）来实现同步；</strong></p>
+<p><strong>synchronized 和 ReentrantLock 的区别：</strong> <code>ReentrantLock</code> 表现为 <code>API</code> 层面的互斥锁（l<code>ock()</code> 和 <code>unlock()</code> 方法配合 <code>try/finally</code> 语句块来完成），<code>synchronized</code> 表现为原生语法层面的互斥锁；</p>
+<p><strong>ReentrantLock 增加了一些高级功能：</strong></p>
+<ul>
+<li><strong>等待可中断：</strong>指当持有缩的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情，可中断特性对处理执行时间非常长的同步块很有帮助。</li>
+<li><strong>公平锁：</strong>指多个线程在等待同一个锁时，必须按照申请锁的时间顺序来依次获得锁。（<code>synchronized</code> 的锁是非公平锁，<code>ReentrantLock</code> 默认也是非公平的，但可以通过带布尔值的构造函数使用公平锁）</li>
+<li><strong>锁绑定多个条件：</strong>指一个 <code>ReentrantLock</code> 对象可以同时绑定多个 <code>Condition</code> 对象，而在 <code>synchronized</code> 中，锁对象的 <code>wait()</code> 和 <code>notify()</code> 或 <code>notifyAll()</code> 方法可以实现一个隐含的条件，如果要和多于一个的条件关联的时候，就不得不额外地添加一个锁，而 <code>ReentrantLock</code> 则无需这样做，只需要多次调用 <code>newCondition()</code> 方法即可。</li>
+</ul>
+<p><strong>虚拟机在未来的性能改进中肯定也会更加偏向于原生的 synchronized，所以还是提倡在 synchronized 能实现需求的情况下，优先考虑使用 synchronized 来进行同步；</strong></p>
+<h3 id="非阻塞同步"><a href="#非阻塞同步" class="headerlink" title="非阻塞同步"></a>非阻塞同步</h3><p><strong>阻塞同步（互斥同步）的问题：</strong>就是进行线程阻塞和唤醒锁带来的性能问题，互斥同步属于一种悲观的并发策略，无论共享数据是否真的会出现竞争，它都要进行加锁，用户核心态转换，维护锁计数器和检查是否有被阻塞的线程需要唤醒等操作。</p>
+<p><strong>非阻塞同步定义：</strong>基于冲突检测的乐观并发策略，通俗的说，就是先进行操作，如果没有其他线程争用共享数据，那操作就成功了；如果共享数据有争用，产生了冲突，那就再采用其他的补偿措施（最常见的补偿措施就是不断重试，直到成功为止），这种乐观的并发策略的许多实现都不需要把线程挂起，因此这种同步操作称为非阻塞同步。</p>
+<p><strong>乐观并发策略需要“硬件指令集的发展”</strong>的发展才能进行这类指令常用的有：</p>
+<ul>
+<li>测试并设置（<code>Test-and-Set</code>）；</li>
+<li>获取并增加（<code>Fetch-and-Increment</code>）；</li>
+<li>交换（<code>Swap</code>）；</li>
+<li>比较并交换（<code>Compare-and-Swap</code>，下文简称 <code>CAS</code>）；</li>
+<li>加载链接/ 条件存储（<code>Load-Linked/Store-Conditional</code>，下文简称 <code>LL/SC</code>）；</li>
+</ul>
+<p><strong>CAS 分析：</strong></p>
+<p><code>CAS</code> 有三个操作数：内存值 <code>V</code>、旧的预期值 <code>A</code>、要修改的值 <code>B</code>，当且仅当预期值 <code>A</code> 和内存值 <code>V</code> 相同时，将内存值修改为 <code>B</code> 并返回 <code>true</code>，否则什么都不做并返回 <code>false</code>。</p>
+<p><code>java.util.concurrent.atomic</code> 包下的原子操作类都是基于 <code>CAS</code> 实现的，接下去我们通过<strong>AtomicInteger</strong> 来看看是如何通过 <code>CAS</code> 实现原子操作的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AtomicInteger</span> <span class="keyword">extends</span> <span class="title">Number</span> <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// setup to use Unsafe.compareAndSwapInt for updates</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe unsafe = Unsafe.getUnsafe();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> valueOffset;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            valueOffset = unsafe.objectFieldOffset</span><br><span class="line">                (AtomicInteger.class.getDeclaredField(<span class="string">"value"</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123; <span class="keyword">throw</span> <span class="keyword">new</span> Error(ex); &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> value;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>Unsafe</code> 是 <code>CAS</code> 的核心类，<code>Java</code> 无法直接访问底层操作系统，而是通过本地（<code>native</code>）方法来访问。不过尽管如此，<code>JVM</code> 还是开了一个后门，<code>JDK</code> 中有一个类 <code>Unsafe</code>，它提供了硬件级别的<strong>原子操作</strong>。</li>
+<li><code>valueOffset</code> 表示的是变量值在内存中的偏移地址，因为 <code>Unsafe</code> 就是根据内存偏移地址获取数据的原值的。</li>
+<li><code>value</code> 是用 <code>volatile</code> 修饰的，保证了多线程之间看到的 <code>value</code> 值是同一份。</li>
+</ul>
+<p>接下去，我们看看 <code>AtomicInteger</code> 是如何实现并发下的累加操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//jdk1.8实现</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getAndAdd</span><span class="params">(<span class="keyword">int</span> delta)</span> </span>&#123;    </span><br><span class="line">    <span class="keyword">return</span> unsafe.getAndAddInt(<span class="keyword">this</span>, valueOffset, delta);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getAndAddInt</span><span class="params">(Object var1, <span class="keyword">long</span> var2, <span class="keyword">int</span> var4)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> var5;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        var5 = <span class="keyword">this</span>.getIntVolatile(var1, var2);</span><br><span class="line">    &#125; <span class="keyword">while</span>(!<span class="keyword">this</span>.compareAndSwapInt(var1, var2, var5, var5 + var4));</span><br><span class="line">    <span class="keyword">return</span> var5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设现在线程 <code>A</code> 和线程 <code>B</code> 同时执行 <code>getAndAdd()</code> 操作：</p>
+<ol>
+<li><code>AtomicInteger</code> 里面的 <code>value</code> 原始值为 3，即主内存中 <code>AtomicInteger</code> 的 <code>value</code> 为 3，根据<code>Java</code> 内存模型，线程 <code>A</code> 和线程 <code>B</code> 各自持有一份 <code>value</code> 的副本，值为 3。</li>
+<li>线程 <code>A</code> 通过 <code>getIntVolatile(var1, var2)</code> 方法获取到 <code>value</code> 值 3，线程切换，线程 <code>A</code> 挂起。</li>
+<li>线程 <code>B</code> 通过 <code>getIntVolatile(var1, var2)</code> 方法获取到 <code>value</code> 值 3，并利用<code>compareAndSwapInt()</code> 方法比较内存值也为 3，比较成功，修改内存值为2，线程切换，线程B挂起。</li>
+<li>线程 <code>A</code> 恢复，利用 <code>compareAndSwapInt</code> 方法比较，发手里的值 3 和内存值 4 不一致，<strong>此时value 正在被另外一个线程修改，线程 A 不能修改 value 值</strong>。</li>
+<li>线程的 <code>compareAndSwapInt</code> 实现，循环判断，重新获取 <code>value</code> 值，因为 <code>value</code> 是 <code>volatile</code> 变量，所以线程对它的修改，线程 <code>A</code> 总是能够看到。线程 <code>A</code> 继续利用 <code>compareAndSwapInt()</code> 进行比较并替换，直到 <code>compareAndSwapInt()</code> 修改成功返回 <code>true</code>。</li>
+</ol>
+<p>整个过程中，利用 <code>CAS</code> 保证了对于 <code>value</code> 的修改的线程安全性。</p>
+<p>我们继续深入看看 <code>Unsafe</code> 类中的 <code>compareAndSwapInt()</code> 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">compareAndSwapInt</span><span class="params">(Object paramObject, <span class="keyword">long</span> paramLong, <span class="keyword">int</span> paramInt1, <span class="keyword">int</span> paramInt2)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这是一个本地方法调用，这个本地方法在 <code>openjdk</code> 中依次调用 <code>c++</code> 代码。如果是多处理器，就为指令添加 <code>lock</code> 前缀，单处理器会不需要 <code>lock</code> 前缀提供的内存屏障效果。带有 <code>lock</code> 前缀的指令在执行期间会锁住总线，使得其它处理器暂时无法通过总线访问指定内存。</p>
+<h3 id="无同步方案"><a href="#无同步方案" class="headerlink" title="无同步方案"></a>无同步方案</h3><p>如果一个方法本来就不涉及共享数据，那它自然就无须任何同步措施去保证正确性，因此会有一些代码天生就是线程安全的。下面介绍两类线程安全代码：</p>
+<ul>
+<li><strong>第一类线程安全代码——可重入代码：</strong>也叫作纯代码，可以在代码执行的任何时刻中断它，转而去执行另外一段代码，而在控制权返回后，原来的程序不会出现任何错误；</li>
+<li><strong>第二类线程安全代码——线程本地存储：</strong>如果一段代码中所需要的数据必须与其他代码共享，那就看看这些共享数据的代码是否能够保证在同一线程中执行？ 如果能保证，我们就可以把共享数据的可见范围限制在同一个线程内，这样，无需同步也可以保证线程间不出现数据争用问题；</li>
+</ul>
+<p><code>Java</code> 语言中，如果一个变量要被多线程访问，可以使用 <code>volatile</code> 关键字声明它为“易变的”；如果一个变量要被某个线程独享，可以通过 <code>java.lang.ThreadLocal</code> 类来实现线程本地存储的功能。</p>
+<h1 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h1><h2 id="自旋锁与自适应自旋"><a href="#自旋锁与自适应自旋" class="headerlink" title="自旋锁与自适应自旋"></a>自旋锁与自适应自旋</h2><p>互斥同步对性能最大的影响是阻塞实现，挂起线程和恢复线程的操作都需要转入内核态中完成，共享数据的锁定状态只会持续很短的一段时间，为了这段时间去挂起和恢复线程很不值得；为了让线程等待，我们只需让线程执行一个忙循环（自旋），这项技术就是所谓的自旋。</p>
+<p><strong>自旋等待的时间必须要有一定的限度：</strong>如果自旋超过了限定次数仍然没有成功获得锁，就应当使用传统的方式去挂起线程了。自旋次数的默认值是 10。</p>
+<p><strong>自适应自旋锁：</strong> <code>JDK 1.6</code> 中引入了自适应的自旋锁。自适应意味着自旋的时间不再固定了，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定：</p>
+<ul>
+<li>如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也很有可能再次成功，进而它将允许自旋等待持续相对更长的时间，比如100个cycle；</li>
+<li>如果对于某个锁，自旋很少成功获得过， 那在以后要获取这个锁时将可能省略掉自旋过程，以避免浪费处理器资源；</li>
+</ul>
+<h2 id="锁清除"><a href="#锁清除" class="headerlink" title="锁清除"></a>锁清除</h2><p>锁清除是指虚拟机即时编译在运行时，对一些代码要求同步，但是被检查到不可能存在数据共享竞争的锁进行清除。</p>
+<p><strong>锁清除的主要判断依据：</strong>来源于逃逸分析的数据支持；如果判定在一段代码中，堆上的所有数据都不会逃逸出去从而被其他线程访问到，那就可以把它们当作栈上数据对待，认为它们是线程私有的，同步加锁自然就无须进行了。</p>
+<p>许多同步措施并不是程序员自己加入的，同步的代码在 <code>Java</code> 程序中的普遍程度早就超过了大部分人的想象。例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockEliminateTest</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// raw code</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">concatString</span><span class="params">(String s1, String s2, String s3)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> s1 + s2 + s3;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// javac 转化后的字符串连接操作</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">concatString</span><span class="params">(String s1, String s2, String s3)</span> </span>&#123;</span><br><span class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        sb.append(s1);</span><br><span class="line">        sb.append(s2);</span><br><span class="line">        sb.append(s3);</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>对于 javac 转化后的字符串连接操作代码：</strong> 使用了同步，因为 <code>StringBuffer.append()</code> 方法中都有一个同步块，锁就是 <code>sb</code> 对象。虚拟机观察变量 <code>sb</code>，很快就会发现他的动态作用域被限制在 <code>concatString()</code> 方法内部；也就是所 <code>sb</code> 的所有引用都不会逃逸到方法之外；虽然这里有锁，但是可以被安全地消除掉，在即时编译之后，这段代码就会忽略掉所有的同步而直接执行了；</p>
+<h2 id="轻量锁"><a href="#轻量锁" class="headerlink" title="轻量锁"></a>轻量锁</h2><p><strong>轻量级锁的目的：</strong>是在没有多线程竞争的前提下，减少传统的重量级锁使用操作系统互斥量产生的性能消耗</p>
+<p><strong>HotSpot 虚拟机的对象头分为两部分信息：</strong><br><strong>第一部分：</strong>用于存储对象自身的运行时数据，如哈希码，<code>GC</code> 分代年龄等；这部分数据的长度在32位和64位的虚拟机中分别为 <code>32bit</code> 和 <code>64bit</code>，官方称它为 <code>Mark Word</code>，它是实现轻量级锁和偏向锁的关键；<br><strong>第二部分：</strong>用于存储指向方法区对象类型数据的指针，如果是数组对象的话，还会有一个额外的部分用于存储数组长度；</p>
+<p><code>HotSpot</code> 虚拟机对象头 <code>Mark Word</code> 如下图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-8d6c9d1280617ff3.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><strong>在代码进入同步块的时候：</strong></p>
+<ul>
+<li><p><strong>轻量级锁的加锁过程：</strong></p>
+<ol>
+<li>如果此同步对象没有被锁定（锁标志位为01状态）：虚拟机首先将在当前线程的栈帧中建立一个名为锁记录（<code>Lock Record</code>）的空间，用于存储对象目前的 <code>Mark Word</code> 的拷贝；</li>
+<li>然后，虚拟机将使用 <code>CAS</code> 操作尝试将对象的 <code>Mark Word</code> 更新为指向 <code>Lock Record</code> 的指针；</li>
+<li>如果这个更新工作成功了，那么这个线程就拥有了该对象的锁，并且对象 <code>Mark Word</code> 的锁标志位将转变为 00，即表示此对象处于轻量级锁定状态；</li>
+<li>如果这个更新失败了，虚拟机首先会检查对象的 <code>Mark Word</code> 是否指向当前线程的栈帧，如果是说明当前线程已经拥有了这个对象的锁，那就可以直接进入同步块继续执行，否则说明这个锁对象已经被其他线程抢占了。如果有两条以上的线程争用同一个锁，那轻量级锁就不再有效，要膨胀为重量级锁，锁标志的状态值变为 10，<code>Mark Word</code> 中存储的就是指向重量级（互斥量）的指针，后面等待锁的线程也要进入阻塞状态；</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><p><strong>轻量级锁的解锁过程：</strong></p>
+<ol>
+<li>如果对象的 <code>Mark Word</code> 仍然指向着线程的锁记录，那就用 <code>CAS</code> 操作把对象当前的 <code>Mark Word</code>  和 线程中复制的 <code>Dispatched Mard Word</code> 替换回来；</li>
+<li>如果替换成功，整个同步过程就 <code>over</code> 了；</li>
+<li>如果替换失败，说明有其他线程尝试过获取该锁，那就要在释放锁的同时，唤醒被挂起的线程；<br>图解：</li>
+</ol>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-000e4f37dbe4ad3a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-a7a2b2a2ef13c7d9.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><p>如果说轻量级锁是在无竞争的情况使用 <code>CAS</code> 操作去消除同步使用的互斥量,那偏向锁就是在无竞争的情况下把整个同步都消除掉，连 <code>CAS</code> 操作都不做了；</p>
+<p><strong>偏向锁的偏：</strong> 它的意思是这个锁会偏向于<strong>第一个获得它的线程</strong>，如果在接下来的执行过程中，该锁没有被其他的线程获取，则持有偏向锁的线程将永远不需要再进行同步；</p>
+<p><strong>偏向锁的原理：</strong>若当前虚拟机启用了偏向锁，那么，当锁对象第一次被线程获取的时候，虚拟机将会把对象头中的标志位设为01，即偏向模式；同时使用 <code>CAS</code> 操作把获取到这个锁的线程的 <code>ID</code> 记录在对象的 <code>Mark Word</code> 之中，如果 <code>CAS</code> 操作成功，持有偏向锁的线程以后每次进入这个锁相关的同步块时，虚拟机都可以不再进行任何同步操作；<strong>当有另一个线程去尝试获取这个锁时，偏向模式就结束了：</strong>根据锁对象目前是否处于被锁定的状态， 撤销偏向后恢复到未锁定（标志位为01）或轻量级锁定（标志位为00）的状态，后续的同步操作就如上面介绍的轻量级锁那样执行；</p>
+<p><strong>偏向锁可以提高带有同步但无竞争的程序性能；如果程序中大多数的锁总是被多个不同的线程访问：那偏向模式是多余的；</strong></p>
+<p>图解：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-867f48f5a477c59a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/08/01/JVM(八) - Java内存模型与线程/" data-toggle="tooltip" data-placement="top" title="JVM(八) - Java内存模型与线程">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#线程安全"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">线程安全</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Java-语言中的线程安全"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">Java 语言中的线程安全</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#线程安全的实现方法"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">线程安全的实现方法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#互斥同步"><span class="toc-nav-number">1.2.1.</span> <span class="toc-nav-text">互斥同步</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#非阻塞同步"><span class="toc-nav-number">1.2.2.</span> <span class="toc-nav-text">非阻塞同步</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#无同步方案"><span class="toc-nav-number">1.2.3.</span> <span class="toc-nav-text">无同步方案</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#锁优化"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">锁优化</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#自旋锁与自适应自旋"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">自旋锁与自适应自旋</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#锁清除"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">锁清除</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#轻量锁"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">轻量锁</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#偏向锁"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">偏向锁</span></a></li></ol></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/08/02/JVM(九) - 线程安全与锁优化/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/08/02/JVM(九) - 线程安全与锁优化/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
