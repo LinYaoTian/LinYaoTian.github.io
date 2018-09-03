@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          Java 并发(一) - 线程安全性 - LinYT&#39;s Blog
+          Java 并发(一) - 基础知识 - LinYT&#39;s Blog
         
     </title>
 
-    <link rel="canonical" href="http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 线程安全性/">
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 基础知识/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -86,10 +86,10 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#Java 并发 - 基础知识" title="Java 并发 - 基础知识">Java 并发 - 基础知识</a>
+                              <a class="tag" href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
                             
                         </div>
-                        <h1>Java 并发(一) - 线程安全性</h1>
+                        <h1>Java 并发(一) - 基础知识</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by LinYaoTian on
@@ -203,7 +203,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>要编写线程安全的代码，其核心在于要对状态访问操作进行管理，特别是对<strong>共享的（Shared）</strong>和<strong>可变的（Mutable）</strong>状态的访问。</p>
+                <h1 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h1><p>要编写线程安全的代码，其核心在于要对状态访问操作进行管理，特别是对<strong>共享的（Shared）</strong>和<strong>可变的（Mutable）</strong>状态的访问。</p>
 <p>“共享”意味着变量可以由多个线程同时访问，而“可变”则意味着变量的值在其生命周期内可以发生变化。</p>
 <blockquote>
 <p>如果当多个线程访问同一个可变的状态变量时没有使用合适的同步，那么程序就会出现错误。有三种方式可以修复这个问题：</p>
@@ -213,7 +213,7 @@
 <li>在访问状态变量时使用同步</li>
 </ul>
 </blockquote>
-<h1 id="什么是线程安全性"><a href="#什么是线程安全性" class="headerlink" title="什么是线程安全性"></a>什么是线程安全性</h1><p>定义：<strong>当多个线程访问某个类时，不管运行时环境采用何种调度方式或者这些线程将如何交替执行，并且在主调代码中不需要任何额外的同步或协同，这个类都能表现出正确的行为，那么就称这个类是线程安全的。</strong></p>
+<h2 id="什么是线程安全性"><a href="#什么是线程安全性" class="headerlink" title="什么是线程安全性"></a>什么是线程安全性</h2><p>定义：<strong>当多个线程访问某个类时，不管运行时环境采用何种调度方式或者这些线程将如何交替执行，并且在主调代码中不需要任何额外的同步或协同，这个类都能表现出正确的行为，那么就称这个类是线程安全的。</strong></p>
 <blockquote>
 <p>在线程安全类中封装了必要的同步机制，因此客户端无须进一步采取同步措施。</p>
 </blockquote>
@@ -222,7 +222,7 @@
 <p>无状态变量一定是线程安全的。</p>
 </blockquote>
 <h1 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h1><p>原子性从字面意思上看就是，要么全部都做，要么全部都不做。具有原子性的操作是线程安全的，例如 <code>i = 1</code>；不具有原子性的操作不是线程安全的，例如 <code>i++</code>。因为 <code>i++</code> 实际上分为三步，读取<code>i</code>，将值加 <code>1</code>，写回 <code>i</code>。</p>
-<h2 id="竞态条件"><a href="#竞态条件" class="headerlink" title="竞态条件"></a>竞态条件</h2><p>当某个计算结果的正确性取决于多个线程的交替执行时序时，那么就会发生<strong>竞态条件</strong>。</p>
+<h3 id="竞态条件"><a href="#竞态条件" class="headerlink" title="竞态条件"></a>竞态条件</h3><p>当某个计算结果的正确性取决于多个线程的交替执行时序时，那么就会发生<strong>竞态条件</strong>。</p>
 <p>竞态条件和原子性相关，或者说，之所以代码会发生竞态条件，就是因为代码不是以原子方式操作的，而是一种复合操作。 </p>
 <p>例如：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> A instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> A <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">            instance = <span class="keyword">new</span> A();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -233,10 +233,10 @@
 <li>对于这两种竞态条件，我们要避免它，就要保证它是原子方式执行，即在某个线程修改该变量时，通过某种方式防止其他线程使用这个变量。</li>
 <li><code>i++</code> 这种情况可以使用 <code>concurrent.atomic</code> 包实现原子操作，而先检查后执行这种竞态条件则可以通过加锁来实现同步。</li>
 </ul>
-<h2 id="concurrent-atomic-包实现原子操作"><a href="#concurrent-atomic-包实现原子操作" class="headerlink" title="concurrent.atomic 包实现原子操作"></a>concurrent.atomic 包实现原子操作</h2><p>原子操作类主要用于高并发环境下的程序处理，这些处理主要有：<br>- 基本类：<code>AtomicInteger</code>，<code>AtomicLong</code>，<code>AtomicBoolean</code><br>- 引用类型：<code>AtomicReference</code><br>- 数组类型：<code>AtomicIntegerArray</code>，<code>AtomicLongArray</code>，<code>AtomicReferenceArray</code></p>
+<h3 id="concurrent-atomic-包实现原子操作"><a href="#concurrent-atomic-包实现原子操作" class="headerlink" title="concurrent.atomic 包实现原子操作"></a>concurrent.atomic 包实现原子操作</h3><p>原子操作类主要用于高并发环境下的程序处理，这些处理主要有：<br>- 基本类：<code>AtomicInteger</code>，<code>AtomicLong</code>，<code>AtomicBoolean</code><br>- 引用类型：<code>AtomicReference</code><br>- 数组类型：<code>AtomicIntegerArray</code>，<code>AtomicLongArray</code>，<code>AtomicReferenceArray</code></p>
 <p>像上面提到的递增，就可以用原子类来实现</p>
-<h1 id="加锁机制"><a href="#加锁机制" class="headerlink" title="加锁机制"></a>加锁机制</h1><p><strong>要保证状态的一致性，就需要在单个原子操作中更新所有相关的状态变量。</strong></p>
-<h2 id="内置锁"><a href="#内置锁" class="headerlink" title="内置锁"></a>内置锁</h2><p><code>Java</code> 提供了一种内置的锁机制来支持原子性：同步代码块（<code>Synchronized</code>），同步代码块包括两部分：一个作为锁的对象引用，一个作为由这个锁保护的代码块。</p>
+<h2 id="加锁机制"><a href="#加锁机制" class="headerlink" title="加锁机制"></a>加锁机制</h2><p><strong>要保证状态的一致性，就需要在单个原子操作中更新所有相关的状态变量。</strong></p>
+<h3 id="内置锁"><a href="#内置锁" class="headerlink" title="内置锁"></a>内置锁</h3><p><code>Java</code> 提供了一种内置的锁机制来支持原子性：同步代码块（<code>Synchronized</code>），同步代码块包括两部分：一个作为锁的对象引用，一个作为由这个锁保护的代码块。</p>
 <p>对于前面先检查后执行的竞态条件，可以通过加锁来实现线程安全</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> A instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> A <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">            instance = <span class="keyword">new</span> A();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>谈到锁，就要谈到双重加锁机制：</p>
@@ -257,14 +257,14 @@
 </ol>
 <p>按理论来说，这是完美的。双重检查锁定的问题是：并不能保证它会在单处理器或多处理器计算机上顺利运行。双重检查锁定失败的问题并不归咎于 <code>JVM</code> 中的实现 <code>bug</code>，而是归咎于 <code>Java</code> 平台内存模型。内存模型允许所谓的“无序写入”，这也是这些习语失败的一个主要原因。</p>
 <p>所以不要使用双重锁定！</p>
-<h2 id="内置锁的特性"><a href="#内置锁的特性" class="headerlink" title="内置锁的特性"></a>内置锁的特性</h2><ol>
+<h3 id="内置锁的特性"><a href="#内置锁的特性" class="headerlink" title="内置锁的特性"></a>内置锁的特性</h3><ol>
 <li><p><strong>自动获得和释放</strong></p>
 <p>每个  <code>Java</code> 对象都可以隐式地扮演一个用于同步的锁的角色，这些内置的锁被称为<strong>内部锁（Intrinsic Lock）</strong>或<strong>监视器锁（Monitor Lock）</strong>，执行线程进入 <code>synchronized</code> 块之前自动获得锁，而无论是正常退出还是抛出异常，线程都会自动释放锁。因此获得内部锁的唯一途径是进入这个内部锁保护的同步块或方法。</p>
 </li>
 <li><p><strong>互斥性</strong></p>
 <p>内部锁在 <code>Java</code> 中扮演了互斥锁的角色，即至多只有一个线程可以拥有锁，没有获取到锁的线程只能等待或阻塞直到锁被释放，因此同步块可以线程安全地原子执行。</p>
 </li>
-<li><p>可重入性： </p>
+<li><p><strong>可重入性：</strong> </p>
 <p>可重入是指对于同一个线程，它可以重新获得已有它占用的锁。 </p>
 <p>可重入性意味着锁的请求是基于”每线程”而不是基于”每调用”，它是通过为锁关联一个请求计数器和一个占有它的线程来实现。 </p>
 <p>可重入性方便了锁行为的封装，简化了面向对象并发代码的开发，可以防止类继承引起的死锁，例子如下：</p>
@@ -272,11 +272,38 @@
 <p>子类 <code>LoggingWidget</code> 覆盖了父类 <code>Widget</code> 中 <code>synchronized</code> 类型的 <code>doSomething()</code> 方法，并调用了父类的中的同步方法，因此子类 <code>LoggingWidget</code> 和父类 <code>Widget</code> 在调用 <code>doSomething()</code> 方法之前都会先获取 <code>Widget</code> 的锁，若内部锁没有可重入性，则 <code>super.doSomething()</code> 的调用就会因为无法获得锁而被死锁。</p>
 </li>
 </ol>
-<h1 id="用锁来保护状态"><a href="#用锁来保护状态" class="headerlink" title="用锁来保护状态"></a>用锁来保护状态</h1><p>一种常见的错误认识：只有在写入共享变量时才需要使用同步。</p>
+<h2 id="用锁来保护状态"><a href="#用锁来保护状态" class="headerlink" title="用锁来保护状态"></a>用锁来保护状态</h2><p>一种常见的错误认识：只有在写入共享变量时才需要使用同步。</p>
 <p>对于可能被多个线程同时访问的可变状态变量，在访问它时都需要持有一个锁，在这种情况下，我们称状态变量是由这个锁保护的。</p>
 <p>每个共享的和可变的变量都应该只由一个锁来保护，从而使维护人员知道是哪一个锁。</p>
 <p>对于每个包含多个变量的的不变性条件，其中涉及的所有变量都需要由同一个锁来保护。</p>
 <p>当执行时间较长的计算或者可能无法快速完成的操作时，一定不要持有锁。</p>
+<h1 id="对象的共享"><a href="#对象的共享" class="headerlink" title="对象的共享"></a>对象的共享</h1><h2 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h2><p>发布一个对象的意思是：使对象能够在当前作用域之外的代码中使用。</p>
+<p>例如：</p>
+<ol>
+<li>将一个对象存储到其他代码可以访问到的地方。</li>
+<li>在一个非私有的方法中放回该对象。</li>
+<li>将该对象传递到其他类的方法中。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Set&lt;Secret&gt; secrets;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">     secrets = <span class="keyword">new</span> HashSet&lt;Secret&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当发布某个对象时，可能会间接地发布其他对象。例如如果将一个 <code>Secret</code> 对象添加到集合 <code>secrets</code> 中，那么发布 <code>secrets</code> 的同时，也会发布 <code>Secret</code> 对象，因为任何代码都可以遍历这个集合，并获得对 <code>Secret</code> 对象的引用。</p>
+<h2 id="逸出"><a href="#逸出" class="headerlink" title="逸出"></a>逸出</h2><p>当某个不应该发布的对象被发布时，这种情况就是逸出。</p>
+<p>对象逸出会导致对象内部状态暴露，可能会危及封装性，使程序难以维持稳定；若发布尚未构造完成的对象可能会危及安全问题。</p>
+<p>最常见的逸出就是 <code>This</code> 引用在构造时逸出，导致 <code>This</code> 引用逸出的常见错误有：</p>
+<ol>
+<li><p><strong>在构造函数中启动线程：</strong></p>
+<p>当对象在构造函数中显式或者隐式创建线程时，<code>This</code> 引用几乎总是被新线程共享，于是新的线程在所属对象完成构造之前就能看见它。<br>避免构造函数中启动线程引起的 <code>This</code> 引用逸出的方法是不要在构造函数中启动新线程，取而代之的是在其他初始化或启动方法中启动对象拥有的线程。</p>
+</li>
+<li><p><strong>在构造方法中调用可覆盖的实例方法：</strong></p>
+<p>在构造方法中调用那些既不是 <code>private</code> 也不是 <code>final</code> 的可被子类覆盖的实例方法时，同样导致 <code>this</code> 引用逸出。<br>避免此类错误的方法是不要在父类构造器中调用被子类覆盖的方法。</p>
+</li>
+<li><p><strong>在构造方法中创建内部类：</strong></p>
+<p>在构造方法中创建内部类实例时，内部类的实例包含了对封装实例的隐含引用，可能导致隐式 <code>this</code> 逸出，例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThisEscape</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThisEscape</span><span class="params">(EventSource source)</span> </span>&#123;  </span><br><span class="line">        source.registerListener(<span class="keyword">new</span> EventListener() &#123;  </span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span> </span>&#123;  </span><br><span class="line">                doSomething(e);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述例子中的 <code>this</code> 逸出可以使用工厂方法来避免，例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeListener</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> EventListener listener;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SafeListener</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        listener = <span class="keyword">new</span> EventListener()&#123;  </span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span></span>&#123;  </span><br><span class="line">                doSomething(e);  </span><br><span class="line">            &#125;  </span><br><span class="line">        );  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SafeListener <span class="title">newInstance</span><span class="params">(EventSource source)</span> </span>&#123;  </span><br><span class="line">        SafeListener safe = <span class="keyword">new</span> SafeListener();  </span><br><span class="line">        source.registerListener(safe.listener);  </span><br><span class="line">        <span class="keyword">return</span> safe;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ol>
 
                 
 
@@ -316,7 +343,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">简介</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#什么是线程安全性"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">什么是线程安全性</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#原子性"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">原子性</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#竞态条件"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">竞态条件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#concurrent-atomic-包实现原子操作"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">concurrent.atomic 包实现原子操作</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#加锁机制"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">加锁机制</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#内置锁"><span class="toc-nav-number">4.1.</span> <span class="toc-nav-text">内置锁</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#内置锁的特性"><span class="toc-nav-number">4.2.</span> <span class="toc-nav-text">内置锁的特性</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#用锁来保护状态"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">用锁来保护状态</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#线程安全性"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">线程安全性</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#什么是线程安全性"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">什么是线程安全性</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#原子性"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">原子性</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#竞态条件"><span class="toc-nav-number">2.0.1.</span> <span class="toc-nav-text">竞态条件</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#concurrent-atomic-包实现原子操作"><span class="toc-nav-number">2.0.2.</span> <span class="toc-nav-text">concurrent.atomic 包实现原子操作</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#加锁机制"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">加锁机制</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#内置锁"><span class="toc-nav-number">2.1.1.</span> <span class="toc-nav-text">内置锁</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#内置锁的特性"><span class="toc-nav-number">2.1.2.</span> <span class="toc-nav-text">内置锁的特性</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#用锁来保护状态"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">用锁来保护状态</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#对象的共享"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">对象的共享</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#发布"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">发布</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#逸出"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">逸出</span></a></li></ol></li></ol>
         
         </div>
       </aside>
@@ -346,8 +373,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "your-disqus-ID";
-    var disqus_identifier = "http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 线程安全性/";
-    var disqus_url = "http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 线程安全性/";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 基础知识/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/09/02/Java 并发(一) - 基础知识/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
