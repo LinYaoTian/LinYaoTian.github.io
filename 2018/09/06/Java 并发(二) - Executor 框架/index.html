@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          Java 并发(二) - Executor 框架 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/09/06/Java 并发(二) - Executor 框架/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+                            
+                        </div>
+                        <h1>Java 并发(二) - Executor 框架</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-09-06
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="Executor-框架"><a href="#Executor-框架" class="headerlink" title="Executor 框架"></a>Executor 框架</h1><p>选择串行的方式执行任务，串行处理机制通常无法提高高吞吐率和快速响应性，于是我们可以显式地为任务创建线程，为每一个请求创建一个线程来执行任务，这样可以实现更高的响应性。 </p>
+<p><strong>但是这样会带来很多问题：</strong> </p>
+<ol>
+<li>线程的创建和销毁开销非常高 </li>
+<li>活跃的线程会消耗系统资源，尤其是内存。如果可运行的线程数量多于可用处理器的数量，那么有些线程就会闲置。大量空闲的线程会占用许多内存，给 <code>GC</code> 带来很大的压力，而且大量线程在竞争 <code>CPU</code> 资源时还会产生其他性能开销。 </li>
+<li>可创建线程的数量存在一个限制。这个限制值受多个平台制约，包括 <code>JVM</code> 的启动参数，<code>Thread</code> 构造函数中请求栈的大小以及操作系统的限制。</li>
+</ol>
+<p>总得来说，增加线程可以提高系统的吞吐率但是如果超出了这个范围，再创建更多的线程只会降低程序的速度，更严重会导致奔溃。</p>
+<h2 id="使用-Executor-框架"><a href="#使用-Executor-框架" class="headerlink" title="使用 Executor 框架"></a>使用 Executor 框架</h2><p>对于线程和任务，任务是一组逻辑工作单元，而线程是使任务异步执行的机制，<code>Executor</code> 框架可以将线程和任务协调起来。 </p>
+<p><code>Executor</code> 基于生产者—消费者模型，它提供了一个标准的方法，将任务的提交和执行过程解耦，用 <code>Runnable</code> 来表示任务。提交任务的操作相当于生产者，执行任务的线程相当于消费者。</p>
+<p><code>Executor</code> 有两种实现方式：</p>
+<ul>
+<li><p>每线程每任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPerTaskExecutor</span> <span class="keyword">implements</span> <span class="title">Executor</span> </span>&#123;  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;  </span><br><span class="line">      <span class="keyword">new</span> Thread(command).start();  </span><br><span class="line">  &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一个线程所有任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WithinThreadExecutor</span> <span class="keyword">implements</span> <span class="title">Executor</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;  </span><br><span class="line">        command.run();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>线程池的优势：</p>
+<ol>
+<li>通过重用现有的线程而不是创建新线程，可以减少创建和销毁线程的开销 。</li>
+<li>当请求到来时，由于线程已经存在，可以减少等待时间，从而提高了响应性。</li>
+</ol>
+<p>可以通过调用 <code>Executors</code> 中的静态工厂方法之一来创建一个线程池：</p>
+<ul>
+<li><p><strong>newFixedThreadPool</strong> 创建一个<strong>定长</strong>的线程池, <strong>每当提交一个任务就创建一个线程</strong>, 直到达到池的最大长度, 这时线程池会保持长度不再变化. （一任务一线程）</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-141536082d0d473f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p><strong>newCachedThreadPool</strong> 创建一个<strong>可缓存</strong>的线程池, 如果当前线程的长度超过了处理的需要时, 它可以灵活的回收空闲的线程, 当需求增加时, 它可以灵活的增加新的线程, 而并不会对池的长度做任何限制.。（缓存线程池）</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-22c842d665191bdd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p><strong>newSingleThreadExecutor</strong> 创建一个<strong>单线程化</strong>的 <code>executor</code>, 它只创建唯一的工作者线程来执行任务, 如果这个线程异常结束, 会有另一个取代它, 但是任务会保存在一个 <code>queue</code> 中等待执行。（多任务一线程）</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-f6b694c3cce945a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p><strong>newScheduleThreadPool</strong> 创建一个定长的线程池, 而且支持<strong>定时的以及周期性</strong>执行任务, 类似 <code>timer</code>。（定时线程池） </p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-d7abacd4d47c3938.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+</ul>
+<p>可以看见上面的静态方法都几乎是通过 <code>ThreadPoolExecutor</code> 来实现的</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-138777a45136475a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>参数含义：</p>
+<ul>
+<li><code>corePoolSize</code>：池中所保存的线程数，包括空闲线程</li>
+<li><code>maximumPoolSize</code>：线程池允许的最大线程数量</li>
+<li><code>keepAliveTime</code>：存活时间，当线程数大于核心线程数时，多出来的线程为空余线程，当空余线程在一定的时间内没有新任务到达执行，则终止该线程</li>
+<li><code>unit</code>：<code>keepAliveTime</code>参数的时间单位</li>
+<li><code>workQueue</code>：执行前用于保持任务的队列。此队列仅保持由 <code>execute</code> 方法提交的 <code>Runnable</code> 任务，使用不同的<code>Queue</code>，能够得到不同的功能，例如 <code>newFixThreadPool</code> 使用的是 <code>linkedBolckQueue</code>，而 <code>newCachedThreadPool</code> 使用的是<code>SynchronizedQueue</code></li>
+</ul>
+<h2 id="Executor-的生命周期：ExecutorService"><a href="#Executor-的生命周期：ExecutorService" class="headerlink" title="Executor 的生命周期：ExecutorService"></a>Executor 的生命周期：ExecutorService</h2><p>从上面所述，我们可以看出 <code>Executor</code>通常是创建线程来执行任务，为了解决执行服务的生命周期问题，<code>Executor</code>扩展了 <code>ExecutorService</code> 接口，添加了生命周期的管理方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ExecutorService</span> <span class="keyword">extends</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function">List&lt;Runnable&gt; <span class="title">shutdownNow</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">isShutdown</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">isTerminated</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">awaitTermination</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">     ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ExecutorService</code> 有三种状态: <strong>running（运行）, shuting down（关闭）, terminated（已终止）</strong>。</p>
+<p><strong>shuting down（关闭）状态：</strong> </p>
+<ul>
+<li><code>shutdown</code>：将停止接受新的任务, 同时等待已经提交的任务完成, 包括尚未完成的任务 </li>
+<li><code>showdownNow</code>：会启动一个强制的关闭过程, 尝试取消所有运行中的任务和排在队列中尚未开始的任务，<strong>并把排队中尚未开始的任务返回。</strong></li>
+</ul>
+<p>对于关闭后提交到 <code>ExecutorService</code> 中的任务, 会被（拒接执行处理器）<code>rejected execution handler</code> 处理，它会抛弃任务，或者使得 <code>execute</code> 方法抛出一个未检查的 <code>RejectedExecutionException</code>。</p>
+<p><strong>terminated（已终止）状态：</strong> </p>
+<p>等所有任务都完成之后，进入<code>terminated</code> 状态, 可以调用 <code>awaitTermination</code> 等待 <code>ExecutorService</code> 到达终止状态, 也可以轮询检查 <code>isTerminated</code> 判断是否终止。通常 <code>shutdown</code> 会紧随 <code>awaitTermination</code> 之后, 这样可以产生同步地关闭<code>ExecutorService</code> 的效果。</p>
+<h2 id="延迟任务和周期任务"><a href="#延迟任务和周期任务" class="headerlink" title="延迟任务和周期任务"></a>延迟任务和周期任务</h2><p>延迟任务：在 100ms 后执行任务 </p>
+<p>周期任务：没 100ms 执行一次任务</p>
+<p>一般来说，<code>Timer</code> 类用于执行延迟任务和周期任务，但是 <code>Timer</code> 有以下两个问题： </p>
+<ol>
+<li>只会创建一个线程来执行所有 <code>task</code>, 如果一个 <code>task</code> 非常耗时, 会导致其他的 <code>task</code> 的实效准确性出问题。 </li>
+<li><code>Timer</code> 线程并不捕获异常，对于一些未检查异常（<code>RuntimeException</code>）抛出，<code>Timer</code> 线程会被终止。</li>
+</ol>
+<p>因此我们一般不使用 <code>Timer</code>，可以使用 <code>DelayQueue</code> 来实现自己的调度服务, 它使 <code>BlockingQueue</code> 的一种实现，并为<code>ScheduledThreadPoolExecutor</code> 提供了调度功能。 其内部包含了一个 <code>Delayed</code> 对象的容器，<code>Delayed</code> 是一种延迟时间对象, 只有元素过期后,它才会让你执行 <code>take</code> 获取元素(这个元素实现了 <code>Delayed</code> 接口）。</p>
+<h2 id="Callable-对比-Runnable"><a href="#Callable-对比-Runnable" class="headerlink" title="Callable 对比 Runnable"></a>Callable 对比 Runnable</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPerTaskExecutor</span> <span class="keyword">implements</span> <span class="title">Executor</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">new</span> Thread(command).start();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Exceutor</code> 框架使用 <code>Runnable</code> 作为最基本的任务形式，但是 <code>Runnable</code> 有一种很大的局限性，它不能返回一个值或抛出一个受检查的异常。</p>
+<p><code>Callable</code> 是一种更好的任务形式，它能返回一个值或者抛出一个异常。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Callable</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">V <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Executor</code> 执行任务时有 4 个生命周期阶段：创建，提交，开始，完成。<br>对于已提交但尚未开始的任务，调用 <code>shutdownNow()</code> 可以取消并返回这些任务；对于已经开始的任务，只有当他们能响应中断时，才能取消。</p>
+<h2 id="Callable-和-Future-结合使用返回结果"><a href="#Callable-和-Future-结合使用返回结果" class="headerlink" title="Callable 和 Future 结合使用返回结果"></a>Callable 和 Future 结合使用返回结果</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span></span>;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function"><span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span></span>;</span><br><span class="line">     <span class="function">V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line">     <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>get()</code> 方法的行为将取决于任务的状态，如果任务已经完成，那么 <code>get()</code> 会立即返回结果或者抛出一个 <code>Exception</code>，如果任务没有完成，那么 <code>get()</code> 将阻塞并直到任务完成。</p>
+<p>将一个 <code>Runnable</code> 或者 <code>Callable</code> 任务传递给 <code>ExecutorService</code> 的 <code>submit</code> 方法，将返回一个 <code>Future</code> 用于获得任务的执行结果或者取消任务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ExecutorService executor = Executors.newCachedThreadPool();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">renderPage</span><span class="params">(String source)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> List&lt;ImageInfo&gt; imageInfos = scanForImageInfo(source);</span><br><span class="line">        <span class="comment">//下载图片</span></span><br><span class="line">        Callable&lt;List&lt;ImageData&gt;&gt; task = <span class="keyword">new</span> Callable&lt;List&lt;ImageData&gt;&gt;() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> List&lt;ImageData&gt; <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                List&lt;ImageData&gt; list = <span class="keyword">new</span> ArrayList&lt;ImageData&gt;();</span><br><span class="line">                <span class="keyword">for</span> (ImageInfo imageInfo : imageInfos) &#123;</span><br><span class="line">                    list.add(imageInfo.download());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//处理图片</span></span><br><span class="line">        Future&lt;List&lt;ImageData&gt;&gt; future = executor.submit(task);<span class="comment">//将一个Runnable或者Callable任务传递给ExecutorService的submit方法，将返回一个Future用于获得任务的执行结果或者取消任务。</span></span><br><span class="line">        renderText(source);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            List&lt;ImageData&gt; list = future.get();<span class="comment">//get()方法会一直阻塞，直到callable的任务全部完成。</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            Thread.currentThread().interrupt();</span><br><span class="line">            <span class="comment">// 由于不需要结果，因此取消任务</span></span><br><span class="line">            future.cancel(<span class="keyword">true</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>上面程序还存在一个问题不是很好，就是下载图片和处理图片的速率的协调问题，如果处理图片的速度远远高于下载图片的速度，那跟串行执行的效率可能相差不是很大。</p>
+<h2 id="CompletionService-和-BlockingQueue"><a href="#CompletionService-和-BlockingQueue" class="headerlink" title="CompletionService 和 BlockingQueue"></a>CompletionService 和 BlockingQueue</h2><p><code>CompletionService</code> 用来将 <code>Executor</code> 与 <code>BlockingQueue</code> 进行结合, 将 <code>Callable</code> 任务提交给它执行, 然后使用类似队列中的 <code>take</code> 和 <code>poll</code> 在结果完整时获得这个结果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ExecutorService executor = Executors.newCachedThreadPool();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">renderPage</span><span class="params">(String source)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> List&lt;ImageInfo&gt; imageInfos = scanForImageInfo(source);</span><br><span class="line">        CompletionService&lt;ImageData&gt; service = <span class="keyword">new</span> ExecutorCompletionService&lt;ImageData&gt;(</span><br><span class="line">                executor);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> ImageInfo imageInfo : imageInfos) &#123;</span><br><span class="line">            service.submit(<span class="keyword">new</span> Callable&lt;ImageData&gt;() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> ImageData <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> imageInfo.downloadImage();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        renderText(source);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; imageInfos.size(); i++) &#123;</span><br><span class="line">            Future&lt;ImageData&gt; f;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                f = service.take();</span><br><span class="line">                ImageData imageData = f.get();</span><br><span class="line">                renderImage(imageData);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个改进相对于前一个，在两个方面提高了性能： </p>
+<ol>
+<li>为每一个图片的下载都创建一个独立任务，把串行下载改为了并行下载，减少了下载图像的总时间 </li>
+<li>通过 <code>CompletionService</code> 来即时获取每一个下载任务的 <code>Future</code>，并通过该 <code>Future</code> 来获取结果进行处理，有更好的并发性。</li>
+</ol>
+<h2 id="取消和关闭"><a href="#取消和关闭" class="headerlink" title="取消和关闭"></a>取消和关闭</h2><p><code>Java</code> 没有提供任何机制来安全地终止线程，但是它提供了中断，这是一种协作机制，能够使一个线程终止另一个线程的当前工作。</p>
+<h3 id="通过取消标志"><a href="#通过取消标志" class="headerlink" title="通过取消标志"></a>通过取消标志</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrimeGenerator</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;BigInteger&gt; primes = <span class="keyword">new</span> ArrayList&lt;BigInteger&gt;();  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> cancelled;  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        BigInteger p = BigInteger.ONE;  </span><br><span class="line">        <span class="keyword">while</span> (!cancelled) &#123;  </span><br><span class="line">            p = p.nextProbablePrime();  </span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;  </span><br><span class="line">                primes.add(p);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancel</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.cancelled = <span class="keyword">true</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> List&lt;BigInteger&gt; <span class="title">get</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;BigInteger&gt;(primes);  </span><br><span class="line">    &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/09/02/Java 并发(一) - 基础知识/" data-toggle="tooltip" data-placement="top" title="Java 并发(一) - 基础知识">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Executor-框架"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">Executor 框架</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#使用-Executor-框架"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">使用 Executor 框架</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#线程池"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">线程池</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Executor-的生命周期：ExecutorService"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">Executor 的生命周期：ExecutorService</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#延迟任务和周期任务"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">延迟任务和周期任务</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Callable-对比-Runnable"><span class="toc-nav-number">1.5.</span> <span class="toc-nav-text">Callable 对比 Runnable</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Callable-和-Future-结合使用返回结果"><span class="toc-nav-number">1.6.</span> <span class="toc-nav-text">Callable 和 Future 结合使用返回结果</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#CompletionService-和-BlockingQueue"><span class="toc-nav-number">1.7.</span> <span class="toc-nav-text">CompletionService 和 BlockingQueue</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#取消和关闭"><span class="toc-nav-number">1.8.</span> <span class="toc-nav-text">取消和关闭</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#通过取消标志"><span class="toc-nav-number">1.8.1.</span> <span class="toc-nav-text">通过取消标志</span></a></li></ol></li></ol></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/09/06/Java 并发(二) - Executor 框架/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/09/06/Java 并发(二) - Executor 框架/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
