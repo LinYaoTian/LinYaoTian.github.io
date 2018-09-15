@@ -132,14 +132,14 @@
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
@@ -199,6 +199,39 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">
+        <h2 class="post-title">
+            Java 并发(三) - 活跃性和性能，死锁和显示锁
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            避免活跃性危险死锁定义：当一个线程永远占有一个锁，而其他线程尝试去获得这个锁，那么它们将永远被阻塞。
+例如：当线程占有锁A时, 想要获得锁B, 但是同时, 另一个线程持有B， 并尝试获得A， 两个线程将永远等待下去, 这种情况是死锁的最简单的形式 。
+一般来说，当死锁出现时，往往是在最糟糕的时候——高负载的情况下。
+锁顺序死锁锁顺序死锁的原因是：两个线程以不同的顺序来获得相同的锁。 
+
+如果......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-09-15
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+            
+        </div>
+    
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -484,35 +517,6 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/">
-        <h2 class="post-title">
-            JVM(二) - 垃圾收集器与内存分配策略
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述在 Java内存运行时区域中，程序计数器、虚拟机栈、本地方法栈 三个区域随线程而生，随线程而灭；栈中的栈帧随着方法的进入和退出而有条不紊地执行着出栈和入栈操作。每一个栈帧中分配多少内存基本上是在类结构确定下来时就已知的，因此这几个区域的内存分配和回收都具备确定性。在这几个区域内不需要过多考虑回收的问题，因为方法结束或线程结束时，内存自然就跟随着回收了。
-而Java堆 和 方法区 则不一样......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-25
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -601,6 +605,10 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
     <ul>
       
         <li>
+          <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">Java 并发(三) - 活跃性和性能，死锁和显示锁</a>
+        </li>
+      
+        <li>
           <a href="/2018/09/06/Java 并发(二) - Executor 框架/">Java 并发(二) - Executor 框架</a>
         </li>
       
@@ -614,10 +622,6 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
       
         <li>
           <a href="/2018/08/01/JVM(八) - Java内存模型与线程/">JVM(八) - Java内存模型与线程</a>
-        </li>
-      
-        <li>
-          <a href="/2018/07/30/JVM(七) - JVM 晚期(运行期)优化/">JVM(七) - JVM 晚期(运行期)优化</a>
         </li>
       
     </ul>
