@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          LinedList源码分析 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2018/12/06/LinkedList/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+                            
+                        </div>
+                        <h1>LinedList源码分析</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2018-12-06
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>特点：</p>
+<ul>
+<li>LinkedList底层是链表结构</li>
+<li>插入和删除比较快（O(1)），查询则相对慢一些（O(n)）</li>
+<li>因为是链表结构，所以分配的空间不要求是连续的</li>
+</ul>
+<p>继承关系：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-e89c9617f6ef49f0?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>源码定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">extends</span> <span class="title">AbstractSequentialList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt;, <span class="title">Deque</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>AbstractSequentialList这个类提供了List的一个骨架实现接口，以尽量减少实现此接口所需的工作量由“顺序访问”数据存储（如链接列表）支持。对于随机访问数据（如数组），应使用AbstractList优先于此类。</li>
+<li>实现了List接口,意味着LinkedList元素是有序的,可以重复的,可以有null元素的集合.</li>
+<li>Deque是Queue的子接口,Queue是一种队列形式,而Deque是双向队列,它支持从两个端点方向检索和插入元素.</li>
+<li>实现了Cloneable接口,标识着可以它可以被复制.注意,ArrayList里面的clone()复制其实是浅复制(不知道此概念的赶快去查资料,这知识点非常重要).</li>
+<li>实现了Serializable 标识着集合可被序列化。</li>
+</ul>
+<h1 id="属性定义"><a href="#属性定义" class="headerlink" title="属性定义"></a>属性定义</h1><h2 id="节点定义"><a href="#节点定义" class="headerlink" title="节点定义"></a>节点定义</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    E item;  <span class="comment">//该节点的数据</span></span><br><span class="line">    Node&lt;E&gt; next; <span class="comment">//指向下一个节点的指针</span></span><br><span class="line">    Node&lt;E&gt; prev; <span class="comment">//指向上一个节点的指针</span></span><br><span class="line"></span><br><span class="line">    Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;</span><br><span class="line">        <span class="keyword">this</span>.item = element;</span><br><span class="line">        <span class="keyword">this</span>.next = next;</span><br><span class="line">        <span class="keyword">this</span>.prev = prev;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Node是LinkedList的静态内部类。</p>
+<p>为什么是静态内部类?我觉得可能原因如下：普通内部类会有外部类的强引用，而静态内部类就没有；有外部类的强引用的话，很容易造成内存泄漏，写成静态内部类可以避免这种情况的发生。</p>
+<h2 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//链表长度</span></span><br><span class="line"><span class="keyword">transient</span> <span class="keyword">int</span> size = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 头结点</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">transient</span> Node&lt;E&gt; first;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 尾节点</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">transient</span> Node&lt;E&gt; last;</span><br></pre></td></tr></table></figure>
+<p>这里为什么要存在一个成员变量尾节点？我感觉是为了方便，比如查找相应索引处元素+插入元素到最后。查找相应索引处元素时，先判断索引是在前半段还是在后半段，如果是在后半段，那么直接从尾节点出发，从后往前进行查找，这样速度更快。在插入元素到最后时，可以直接通过尾节点方便的进行插入。</p>
+<h2 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 构造一个空列表</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 构造列表通过指定的集合</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedList</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>();</span><br><span class="line">    addAll(c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="添加元素"><a href="#添加元素" class="headerlink" title="添加元素"></a>添加元素</h1><h2 id="add-E-e"><a href="#add-E-e" class="headerlink" title="add(E e)"></a>add(E e)</h2><p>方法作用:将e添加到链表末尾，返回是否添加成功</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 添加指定元素到链表尾部</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    linkLast(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Links e as last element.将e添加到尾部</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 暂记尾节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">    <span class="comment">//2. 构建节点 前一个节点是之前的尾节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line">    <span class="comment">//3. 新建的节点是尾节点了</span></span><br><span class="line">    last = newNode;</span><br><span class="line">    <span class="comment">//4. 判断之前链表是否为空  </span></span><br><span class="line">    <span class="comment">//为空则将新节点赋给头结点(相当于空链表插入第一个元素,头结点等于尾节点)</span></span><br><span class="line">    <span class="comment">//非空则将之前的尾节点指向新节点</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">        first = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        l.next = newNode;</span><br><span class="line">    <span class="comment">//5. 链表长度增加</span></span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路:</p>
+<ul>
+<li>构建一个新的节点</li>
+<li>将该新节点作为新的尾节点，如果是空链表插入第一个元素,那么头结点=尾节点=新节点;如果不是,那么将之前的尾节点指向新节点.</li>
+<li>增加链表长度</li>
+</ul>
+<h2 id="addFirst-E-e"><a href="#addFirst-E-e" class="headerlink" title="addFirst(E e)"></a>addFirst(E e)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addFirst</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    linkFirst(e);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 添加元素到链表头部</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">linkFirst</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 记录头结点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">    <span class="comment">//2. 创建新节点  next指针指向之前的头结点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(<span class="keyword">null</span>, e, f);</span><br><span class="line">    <span class="comment">//3. 新建的节点就是头节点了</span></span><br><span class="line">    first = newNode;</span><br><span class="line">    <span class="comment">//4. 判断之前链表是否为空  </span></span><br><span class="line">    <span class="comment">//为空则将新节点赋给尾节点(相当于空链表插入第一个元素,头结点等于尾节点)</span></span><br><span class="line">    <span class="comment">//非空则将之前的头结点的prev指针指向新节点</span></span><br><span class="line">    <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">        last = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        f.prev = newNode;</span><br><span class="line">    <span class="comment">//5. 链表长度增加</span></span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路:</p>
+<ul>
+<li>构建一个新的节点</li>
+<li>将该新节点作为新的头节点.如果是空链表插入第一个元素,那么头结点=尾节点=新节点;如果不是,那么将之前的头节点的prev指针指向新节点.</li>
+<li>增加链表长度</li>
+</ul>
+<h2 id="add-int-index-E-element"><a href="#add-int-index-E-element" class="headerlink" title="add(int index, E element)"></a>add(int index, E element)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//添加元素到指定位置</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 越界检查</span></span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2. 判断一下index大小</span></span><br><span class="line">    <span class="comment">//如果是和list大小一样,那么就插入到最后</span></span><br><span class="line">    <span class="comment">//否则插入到index处</span></span><br><span class="line">    <span class="keyword">if</span> (index == size)</span><br><span class="line">        linkLast(element);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        linkBefore(element, node(index));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//检查是否越界</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">checkPositionIndex</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!isPositionIndex(index))</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IndexOutOfBoundsException(outOfBoundsMsg(index));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Returns the (non-null) Node at the specified element index.</span></span><br><span class="line"><span class="comment">返回指定元素索引处的（非空）节点。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function">Node&lt;E&gt; <span class="title">node</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert isElementIndex(index);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 这里的思想非常巧妙,如果index在链表的前半部分,那么从first开始往后查找</span></span><br><span class="line"><span class="comment">    否则,从last往前面查找</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="comment">//1. 如果index&lt;size/2 ,即index在链表的前半部分</span></span><br><span class="line">    <span class="keyword">if</span> (index &lt; (size &gt;&gt; <span class="number">1</span>)) &#123;</span><br><span class="line">        <span class="comment">//2. 记录下第一个节点</span></span><br><span class="line">        Node&lt;E&gt; x = first;</span><br><span class="line">        <span class="comment">//3. 循环从第一个节点开始往后查,直到到达index处,返回index处的元素</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; index; i++)</span><br><span class="line">            x = x.next;</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//index在链表的后半部分</span></span><br><span class="line">        <span class="comment">//4. 记录下最后一个节点</span></span><br><span class="line">        Node&lt;E&gt; x = last;</span><br><span class="line">        <span class="comment">//5. 循环从最后一个节点开始往前查,直到到达index处,返回index处的元素</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = size - <span class="number">1</span>; i &gt; index; i--)</span><br><span class="line">            x = x.prev;</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Links e as last element.</span></span><br><span class="line"><span class="comment">将e链接到list最后一个元素</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 记录最后一个元素l</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">    <span class="comment">//2. 构建一个新节点,数据为e,前一个是l,后一个是null</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line">    <span class="comment">//3. 现在新节点是最后一个元素了,所以需要记录下来</span></span><br><span class="line">    last = newNode;</span><br><span class="line">    <span class="comment">//4. 如果之前list为空,那么first=last=newNode,只有一个元素</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">        first = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">//5. 非空的话,那么将之前的最后一个指向新的节点</span></span><br><span class="line">        l.next = newNode;</span><br><span class="line">    <span class="comment">//6. 链表长度+1</span></span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Inserts element e before non-null Node succ.</span></span><br><span class="line"><span class="comment">在非null节点succ之前插入元素e。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkBefore</span><span class="params">(E e, Node&lt;E&gt; succ)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert succ != null;</span></span><br><span class="line">    <span class="comment">//1. 记录succ的前一个节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; pred = succ.prev;</span><br><span class="line">    <span class="comment">//2. 构建一个新节点,数据是e,前一个节点是pred,下一个节点是succ</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(pred, e, succ);</span><br><span class="line">    <span class="comment">//3. 将新节点作为succ的前一个节点</span></span><br><span class="line">    succ.prev = newNode;</span><br><span class="line">    <span class="comment">//4. 判断pred是否为空</span></span><br><span class="line">    <span class="comment">//如果为空,那么说明succ是之前的头节点,现在新节点在succ的前面,所以新节点是头节点</span></span><br><span class="line">    <span class="keyword">if</span> (pred == <span class="keyword">null</span>)</span><br><span class="line">        first = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">//5. succ的前一个节点不是空的话,那么直接将succ的前一个节点指向新节点就可以了</span></span><br><span class="line">        pred.next = newNode;</span><br><span class="line">    <span class="comment">//6. 链表长度+1</span></span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路:</p>
+<ul>
+<li><p>首先判断一下插入的位置是在链表的最后还是在链表中间</p>
+</li>
+<li><p>如果是插入到链表末尾,那么将之前的尾节点指向新节点</p>
+</li>
+<li><p>如果是插入到链表中间：</p>
+</li>
+<li><ul>
+<li>需要先找到链表中index索引处的节点.</li>
+<li>将新节点赋值为index处节点的前一个节点</li>
+<li>将index处节点的前一个节点的next指针赋值为新节点</li>
+</ul>
+</li>
+</ul>
+<h2 id="addAll-int-index-Collection"><a href="#addAll-int-index-Collection" class="headerlink" title="addAll(int index, Collection)"></a>addAll(int index, Collection)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将指定集合的所有元素插入到末尾位置</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> addAll(size, c);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将指定集合的所有元素插入到index位置</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> index, Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 入参合法性检查</span></span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2. 将集合转成数组</span></span><br><span class="line">    Object[] a = c.toArray();</span><br><span class="line">    <span class="comment">//3. 记录需要插入的集合元素个数</span></span><br><span class="line">    <span class="keyword">int</span> numNew = a.length;</span><br><span class="line">    <span class="comment">//4. 如果个数为0,那么插入失败,不继续执行了</span></span><br><span class="line">    <span class="keyword">if</span> (numNew == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//5. 判断一下index与size是否相等</span></span><br><span class="line">    <span class="comment">//相等则插入到链表末尾</span></span><br><span class="line">    <span class="comment">//不相等则插入到链表中间  index处   </span></span><br><span class="line">    Node&lt;E&gt; pred, succ;   </span><br><span class="line">    <span class="keyword">if</span> (index == size) &#123;</span><br><span class="line">        succ = <span class="keyword">null</span>;</span><br><span class="line">        pred = last;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//找到index索引处节点  这样就可以方便的拿到该节点的前后节点信息</span></span><br><span class="line">        succ = node(index);</span><br><span class="line">        <span class="comment">//记录index索引处节点前一个节点</span></span><br><span class="line">        pred = succ.prev;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//6. 循环将集合中所有元素连接到pred后面</span></span><br><span class="line">    <span class="keyword">for</span> (Object o : a) &#123;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>) E e = (E) o;</span><br><span class="line">        Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(pred, e, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">//如果前一个是空,那么将新节点作为头结点</span></span><br><span class="line">        <span class="keyword">if</span> (pred == <span class="keyword">null</span>)</span><br><span class="line">            first = newNode;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">//指向新节点</span></span><br><span class="line">            pred.next = newNode;</span><br><span class="line">        pred = newNode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//7. 判断succ是否为空</span></span><br><span class="line">    <span class="comment">//为空的话,那么集合的最后一个元素就是尾节点</span></span><br><span class="line">    <span class="comment">//非空的话,那么将succ连接到集合的最后一个元素后面</span></span><br><span class="line">    <span class="keyword">if</span> (succ == <span class="keyword">null</span>) &#123;</span><br><span class="line">        last = pred;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        pred.next = succ;</span><br><span class="line">        succ.prev = pred;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//8. 链表长度+numNew</span></span><br><span class="line">    size += numNew;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路:</p>
+<ul>
+<li>将需要添加的集合转成数组a</li>
+<li>判断需要插入的位置index是否等于链表长度size,如果相等则插入到链表最后;如果不相等,则插入到链表中间,还需要找到index处节点succ,方便拿到该节点的前后节点信息.</li>
+<li>记录index索引处节点的前一个节点pred,循环将集合中所有元素连接到pred的后面</li>
+<li>将集合最后一个元素的next指针指向succ,将succ的prev指针指向集合的最后一个元素</li>
+</ul>
+<h1 id="删除元素"><a href="#删除元素" class="headerlink" title="删除元素"></a>删除元素</h1><h2 id="remove-、removeFirst-、removeLast"><a href="#remove-、removeFirst-、removeLast" class="headerlink" title="remove()、removeFirst()、removeLast()"></a>remove()、removeFirst()、removeLast()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 移除链表第一个节点</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> removeFirst();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 移除链表第一个节点</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">removeFirst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">    <span class="comment">//注意:如果之前是空链表,移除是要报错的哟</span></span><br><span class="line">    <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">    <span class="keyword">return</span> unlinkFirst(f);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Unlinks non-null first node f.</span></span><br><span class="line"><span class="comment">* 将第一个节点删掉</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> E <span class="title">unlinkFirst</span><span class="params">(Node&lt;E&gt; f)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert f == first &amp;&amp; f != null;</span></span><br><span class="line">    <span class="comment">//1. 记录第一个节点的数据值</span></span><br><span class="line">    <span class="keyword">final</span> E element = f.item;</span><br><span class="line">    <span class="comment">//2. 记录下一个节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; next = f.next;</span><br><span class="line">    <span class="comment">//3. 将第一个节点置空  帮助GC回收</span></span><br><span class="line">    f.item = <span class="keyword">null</span>;</span><br><span class="line">    f.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></span><br><span class="line">    <span class="comment">//4. 记录头节点</span></span><br><span class="line">    first = next;</span><br><span class="line">    <span class="comment">//5. 如果下一个节点为空,那么链表无节点了    如果不为空,将头节点的prev指针置为空</span></span><br><span class="line">    <span class="keyword">if</span> (next == <span class="keyword">null</span>)</span><br><span class="line">        last = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        next.prev = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//6. 链表长度-1</span></span><br><span class="line">    size--;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="comment">//7. 返回删除的节点的数据值</span></span><br><span class="line">    <span class="keyword">return</span> element;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="remove-int-index"><a href="#remove-int-index" class="headerlink" title="remove(int index)"></a>remove(int index)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//移除指定位置元素</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//检查入参是否合法</span></span><br><span class="line">    checkElementIndex(index);</span><br><span class="line">    <span class="comment">//node(index)找到index处的节点  </span></span><br><span class="line">    <span class="keyword">return</span> unlink(node(index));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除节点x</span></span><br><span class="line"><span class="function">E <span class="title">unlink</span><span class="params">(Node&lt;E&gt; x)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert x != null;</span></span><br><span class="line">    <span class="comment">//1. 记录该节点数据值,前一个节点prev,后一个节点next</span></span><br><span class="line">    <span class="keyword">final</span> E element = x.item;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; next = x.next;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; prev = x.prev;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2. 判断前一个节点是否为空</span></span><br><span class="line">    <span class="keyword">if</span> (prev == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//为空的话,那么说明之前x节点是头节点  这时x的下一个节点成为头节点</span></span><br><span class="line">        first = next;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//非空的话,将前一个节点的next指针指向x的下一个节点</span></span><br><span class="line">        prev.next = next;</span><br><span class="line">        <span class="comment">//x的prev置为null</span></span><br><span class="line">        x.prev = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//3. 判断x后一个节点是否为空</span></span><br><span class="line">    <span class="keyword">if</span> (next == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//为空的话,那么说明之前x节点是尾节点,这时x的前一个节点成为尾节点</span></span><br><span class="line">        last = prev;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//为空的话,将x的下一个节点的prev指针指向prev(x的前一个节点)</span></span><br><span class="line">        next.prev = prev;</span><br><span class="line">        <span class="comment">//x的next指针置空</span></span><br><span class="line">        x.next = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//4. x节点数据值置空</span></span><br><span class="line">    x.item = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//5. 链表长度-1</span></span><br><span class="line">    size--;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="comment">//6. 将x节点的数据值返回</span></span><br><span class="line">    <span class="keyword">return</span> element;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路: </p>
+<ul>
+<li>首先找到index索引处的节点(这样就可以方便的获取该节点的前后节点),记为x </li>
+<li>记录x的前(prev)后(next)节点 </li>
+<li>判断x前后节点为null的特殊情况，进行相应处理</li>
+<li>将x节点置空,链表长度-1</li>
+</ul>
+<h2 id="remove-Object-o"><a href="#remove-Object-o" class="headerlink" title="remove(Object o)"></a>remove(Object o)</h2><p>方法作用：从此链表中删除第一次出现的指定元素o，与 removeFirstOccurrence(Object o) 的作用相同</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 判断o是否为空</span></span><br><span class="line">    <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//为null  循环,找第一个数据值为null的节点</span></span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x.item == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">//删除该节点</span></span><br><span class="line">                unlink(x);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//非空  循环,找第一个与o的数据值相等的节点</span></span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (o.equals(x.item)) &#123;</span><br><span class="line">                <span class="comment">//删除该节点</span></span><br><span class="line">                unlink(x);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大体思路:</p>
+<ul>
+<li>首先判断入参是否为null</li>
+<li>如果为null,那么循环遍历链表,从头节点开始往后查找,找到第一个节点的数据值为null的，直接删除该节点.</li>
+<li>如果非null,那么循环遍历链表,从头节点开始往后查找,找到第一个节点的数据值为o的（通过equals），直接删除该节点。</li>
+</ul>
+<h2 id="removeLastOccurrence-Object-o"><a href="#removeLastOccurrence-Object-o" class="headerlink" title="removeLastOccurrence(Object o)"></a>removeLastOccurrence(Object o)</h2><p>方法作用:从此链表中删除最后一次出现的指定元素o。</p>
+<p>实现:其实和上面的remove(o)是一样的,只不过这里遍历时是从尾节点开始往前查找的.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">removeLastOccurrence</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = last; x != <span class="keyword">null</span>; x = x.prev) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x.item == <span class="keyword">null</span>) &#123;</span><br><span class="line">                unlink(x);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = last; x != <span class="keyword">null</span>; x = x.prev) &#123;</span><br><span class="line">            <span class="keyword">if</span> (o.equals(x.item)) &#123;</span><br><span class="line">                unlink(x);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="修改元素"><a href="#修改元素" class="headerlink" title="修改元素"></a>修改元素</h1><h2 id="set-int-index-E-element"><a href="#set-int-index-E-element" class="headerlink" title="set(int index, E element)"></a>set(int index, E element)</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 入参检测</span></span><br><span class="line">    checkElementIndex(index);</span><br><span class="line">    <span class="comment">//2. 找到index处节点,上面已分析该方法</span></span><br><span class="line">    Node&lt;E&gt; x = node(index);</span><br><span class="line">    <span class="comment">//3. 保存该节点旧值</span></span><br><span class="line">    E oldVal = x.item;</span><br><span class="line">    <span class="comment">//4. 替换为新值</span></span><br><span class="line">    x.item = element;</span><br><span class="line">    <span class="comment">//5. 将旧值返回</span></span><br><span class="line">    <span class="keyword">return</span> oldVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="查询元素"><a href="#查询元素" class="headerlink" title="查询元素"></a>查询元素</h1><h2 id="element"><a href="#element" class="headerlink" title="element()"></a>element()</h2><p>方法作用：获取链表第一个元素，方法比较简单，就是将链表头节点数据值进行返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">element</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getFirst();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">getFirst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">    <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">    <span class="keyword">return</span> f.item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="get-int-index"><a href="#get-int-index" class="headerlink" title="get(int index)"></a>get(int index)</h2><p>方法作用:获取指定索引处元素. 方法比较简单,就是通过node(index)找到index索引处节点,然后返回其数据值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1. 入参检测</span></span><br><span class="line">    checkElementIndex(index);</span><br><span class="line">    <span class="comment">//2. 获取指定索引处节点数据值</span></span><br><span class="line">    <span class="keyword">return</span> node(index).item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="getFirst"><a href="#getFirst" class="headerlink" title="getFirst()"></a>getFirst()</h2><p>方法作用:获取链表第一个元素. </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">getFirst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">    <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">    <span class="keyword">return</span> f.item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="getLast"><a href="#getLast" class="headerlink" title="getLast()"></a>getLast()</h2><p>方法作用：获取链表最后一个元素</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">getLast</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">    <span class="keyword">return</span> l.item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="通过-listIterator-遍历"><a href="#通过-listIterator-遍历" class="headerlink" title="通过 listIterator 遍历"></a>通过 listIterator 遍历</h2><p>我们先来看看listIterator(int index)方法,就是new了一个ListItr进行返回.ListItr是LinkedList的内部类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ListItr(index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来,我们看看这个内部类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ListItr</span> <span class="keyword">implements</span> <span class="title">ListIterator</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">//上一次返回的节点</span></span><br><span class="line">    <span class="keyword">private</span> Node&lt;E&gt; lastReturned;</span><br><span class="line">    <span class="comment">//下一个节点</span></span><br><span class="line">    <span class="keyword">private</span> Node&lt;E&gt; next;</span><br><span class="line">    <span class="comment">//下一个节点索引</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> nextIndex;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> expectedModCount = modCount;</span><br><span class="line"></span><br><span class="line">    ListItr(<span class="keyword">int</span> index) &#123;</span><br><span class="line">        <span class="comment">// assert isPositionIndex(index);</span></span><br><span class="line">        <span class="comment">//如果是最后一个节点,那么返回next是null    </span></span><br><span class="line">        <span class="comment">//如果不是最后一个节点,那么找到该index索引处节点</span></span><br><span class="line">        next = (index == size) ? <span class="keyword">null</span> : node(index);</span><br><span class="line">        nextIndex = index;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasNext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//判断是否还有下一个元素</span></span><br><span class="line">        <span class="keyword">return</span> nextIndex &lt; size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取下一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">next</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="comment">//1. 如果没有下一个元素   抛异常</span></span><br><span class="line">        <span class="keyword">if</span> (!hasNext())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2. 记录上一次遍历到的节点</span></span><br><span class="line">        lastReturned = next;</span><br><span class="line">        <span class="comment">//3. 往后移</span></span><br><span class="line">        next = next.next;</span><br><span class="line">        <span class="comment">//4. 索引+1</span></span><br><span class="line">        nextIndex++;</span><br><span class="line">        <span class="comment">//5. 将遍历到的节点数据值返回</span></span><br><span class="line">        <span class="keyword">return</span> lastReturned.item;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPrevious</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//判断是否还有前一个元素</span></span><br><span class="line">        <span class="keyword">return</span> nextIndex &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取前一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">previous</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="comment">//1. 如果没有前一个元素,则抛异常</span></span><br><span class="line">        <span class="keyword">if</span> (!hasPrevious())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2. 当next是null的时候,赋值为last     </span></span><br><span class="line">        <span class="comment">//不是null的时候,往前移动</span></span><br><span class="line">        lastReturned = next = (next == <span class="keyword">null</span>) ? last : next.prev;</span><br><span class="line">        <span class="comment">//3. index-1  因为是往前</span></span><br><span class="line">        nextIndex--;</span><br><span class="line">        <span class="comment">//4. 将遍历到的节点数据值返回</span></span><br><span class="line">        <span class="keyword">return</span> lastReturned.item;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">nextIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">previousIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//移除当前遍历到的元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="comment">//1. 移除当前遍历到的元素为null,直接抛错误</span></span><br><span class="line">        <span class="keyword">if</span> (lastReturned == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2. 记录当前节点的下一个节点</span></span><br><span class="line">        Node&lt;E&gt; lastNext = lastReturned.next;</span><br><span class="line">        <span class="comment">//3. 删除当前节点</span></span><br><span class="line">        unlink(lastReturned);</span><br><span class="line">        <span class="comment">//4. 如果next == lastReturned,说明当前是从前往后遍历的,那么将next赋值为下一个节点</span></span><br><span class="line">        <span class="comment">//如果不相等,那么说明是从后往前遍历的,这时只需要将index-1就行了</span></span><br><span class="line">        <span class="keyword">if</span> (next == lastReturned)</span><br><span class="line">            next = lastNext;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            nextIndex--;</span><br><span class="line">        <span class="comment">//5. 将移除的节点置空</span></span><br><span class="line">        lastReturned = <span class="keyword">null</span>;</span><br><span class="line">        expectedModCount++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置当前正在遍历的节点的值   啥?用ListIterator居然可以在遍历的时候修改值,,666</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (lastReturned == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="comment">//设置当前遍历的节点的值</span></span><br><span class="line">        lastReturned.item = e;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加一个值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        lastReturned = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//如果next为null,那么添加到最后</span></span><br><span class="line">        <span class="comment">//否则,将e元素添加到next的前面</span></span><br><span class="line">        <span class="keyword">if</span> (next == <span class="keyword">null</span>)</span><br><span class="line">            linkLast(e);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            linkBefore(e, next);</span><br><span class="line">        nextIndex++;</span><br><span class="line">        expectedModCount++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">forEachRemaining</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> E&gt; action)</span> </span>&#123;</span><br><span class="line">        Objects.requireNonNull(action);</span><br><span class="line">        <span class="comment">//循环 往后遍历   没遍历一个节点就回调当前节点的数据值</span></span><br><span class="line">        <span class="keyword">while</span> (modCount == expectedModCount &amp;&amp; nextIndex &lt; size) &#123;</span><br><span class="line">            action.accept(next.item);</span><br><span class="line">            lastReturned = next;</span><br><span class="line">            next = next.next;</span><br><span class="line">            nextIndex++;</span><br><span class="line">        &#125;</span><br><span class="line">        checkForComodification();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断一下该列表是否被其他线程改过(在迭代过程中)   修改过则抛异常</span></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">checkForComodification</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (modCount != expectedModCount)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的ListIterator有点强</p>
+<ul>
+<li>ListIterator只能用于List及其子类型。</li>
+<li>有add()方法,可以往链表中添加对象</li>
+<li>可以通过hasNext()和next()往后顺序遍历，也可以通过hasPrevious()和previous()实现往前遍历</li>
+<li>可以通过nextIndex()和previousIndex()返回当前索引处的位置</li>
+<li>可以通过set()实现当前遍历对象的修改</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>LinkedList的关键点：</p>
+<ul>
+<li>底层是双向链表存储数据,并且记录了头节点和尾节点</li>
+<li>添加元素非常快,如果是添加到头部和尾部的话更快,因为已经记录了头节点和尾节点,只需要链接一下就行了。如果是添加到链表的中间部分的话,那么多一步操作,需要先找到添加索引处的元素(因为需要链接到这里),才能进行添加。</li>
+<li>遍历的时候,建议采用forEach()进行遍历,这样可以在每次获取下一个元素时都非常轻松(next = next.next;)。然后如果是通过fori和get(i)的方式进行遍历的话,效率是极低的,每次get(i)都需要从最前面(或者最后面)开始往后查找i索引处的元素,效率很低.</li>
+<li>删除也是非常快,只需要改动一下指针就行了,代价很小。</li>
+</ul>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/12/06/ArrayList/" data-toggle="tooltip" data-placement="top" title="ArrayList源码分析">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">简介</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#属性定义"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">属性定义</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#节点定义"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">节点定义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#成员变量"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">成员变量</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#构造方法"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">构造方法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#添加元素"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">添加元素</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#add-E-e"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">add(E e)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#addFirst-E-e"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">addFirst(E e)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#add-int-index-E-element"><span class="toc-nav-number">3.3.</span> <span class="toc-nav-text">add(int index, E element)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#addAll-int-index-Collection"><span class="toc-nav-number">3.4.</span> <span class="toc-nav-text">addAll(int index, Collection)</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#删除元素"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">删除元素</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#remove-、removeFirst-、removeLast"><span class="toc-nav-number">4.1.</span> <span class="toc-nav-text">remove()、removeFirst()、removeLast()</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#remove-int-index"><span class="toc-nav-number">4.2.</span> <span class="toc-nav-text">remove(int index)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#remove-Object-o"><span class="toc-nav-number">4.3.</span> <span class="toc-nav-text">remove(Object o)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#removeLastOccurrence-Object-o"><span class="toc-nav-number">4.4.</span> <span class="toc-nav-text">removeLastOccurrence(Object o)</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#修改元素"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">修改元素</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#set-int-index-E-element"><span class="toc-nav-number">5.1.</span> <span class="toc-nav-text">set(int index, E element)</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#查询元素"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">查询元素</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#element"><span class="toc-nav-number">6.1.</span> <span class="toc-nav-text">element()</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#get-int-index"><span class="toc-nav-number">6.2.</span> <span class="toc-nav-text">get(int index)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#getFirst"><span class="toc-nav-number">6.3.</span> <span class="toc-nav-text">getFirst()</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#getLast"><span class="toc-nav-number">6.4.</span> <span class="toc-nav-text">getLast()</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#通过-listIterator-遍历"><span class="toc-nav-number">6.5.</span> <span class="toc-nav-text">通过 listIterator 遍历</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#总结"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">总结</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2018/12/06/LinkedList/";
+    var disqus_url = "http://LinYaoTian.github.io/2018/12/06/LinkedList/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2018 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

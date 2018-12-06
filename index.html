@@ -202,6 +202,43 @@
 
 <div class="post-preview">
 
+    <a href="/2018/12/06/LinkedList/">
+        <h2 class="post-title">
+            LinedList源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介特点：
+
+LinkedList底层是链表结构
+插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
+因为是链表结构，所以分配的空间不要求是连续的
+
+继承关系：
+
+源码定义：
+123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-06
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/12/06/ArrayList/">
         <h2 class="post-title">
             ArrayList源码分析
@@ -491,41 +528,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/28/JVM(五) - 虚拟机字节码执行机制/">
-        <h2 class="post-title">
-            JVM(五) - 虚拟机字节码执行机制
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述在 Java 中，编译器将源代码转成字节码，那么字节码如何被执行的呢？这就涉及到了 JVM 的字节码执行引擎，执行引擎负责具体的代码调用及执行过程。就目前而言，所有的执行引擎的基本一致：
-
-输入：字节码文件
-处理：字节码解析
-输出：执行结果。
-
-物理机的执行引擎是由硬件实现的，和物理机的执行过程不同的是虚拟机的执行引擎由于自己实现的。
-运行时栈帧结构栈帧（Stack Frame）是用于支......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-28
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -614,6 +616,10 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
     <ul>
       
         <li>
+          <a href="/2018/12/06/LinkedList/">LinedList源码分析</a>
+        </li>
+      
+        <li>
           <a href="/2018/12/06/ArrayList/">ArrayList源码分析</a>
         </li>
       
@@ -627,10 +633,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
       
         <li>
           <a href="/2018/09/06/Java 并发(二) - Executor 框架/">Java 并发(二) - Executor 框架</a>
-        </li>
-      
-        <li>
-          <a href="/2018/09/02/Java 并发(一) - 基础知识/">Java 并发(一) - 基础知识</a>
         </li>
       
     </ul>
