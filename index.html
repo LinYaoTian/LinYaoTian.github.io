@@ -202,30 +202,24 @@
 
 <div class="post-preview">
 
-    <a href="/2018/12/06/LinkedList/">
+    <a href="/2018/12/07/HashMap/">
         <h2 class="post-title">
-            LinedList源码分析
+            HashMap源码分析
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            简介特点：
+            简介Java为数据结构中的映射定义了一个接口java.util.Map，此接口主要有四个常用的实现类，分别是HashMap、Hashtable、LinkedHashMap和TreeMap，类继承关系如下图所示：
 
-LinkedList底层是链表结构
-插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
-因为是链表结构，所以分配的空间不要求是连续的
-
-继承关系：
-
-源码定义：
-123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
+下面针对各个实现类的特点做一些说明：
+(1) HashMap：它根据键的hashCode值存储数据，大多数情况下可以直接定位到它的值，因而具有很快的访问速度，但遍历顺序却是不确定的......
         </div>
     </a>
     
         <p class="post-meta" style="margin: 10px 0;">
             Posted by LinYaoTian on
-            2018-12-06
+            2018-12-07
         </p>
         <div class="tags">
             
@@ -259,6 +253,43 @@ LinkedList底层是链表结构
 
 
 可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-06
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/12/06/LinkedList/">
+        <h2 class="post-title">
+            LinedList源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介特点：
+
+LinkedList底层是链表结构
+插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
+因为是链表结构，所以分配的空间不要求是连续的
+
+继承关系：
+
+源码定义：
+123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
         </div>
     </a>
     
@@ -494,40 +525,6 @@ Java 语言中的线程安全Java 中各种操作共享的数据分为以下 5 �
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/29/JVM(六) - JVM 早期(编译器)优化/">
-        <h2 class="post-title">
-            JVM(六) - JVM 早期(编译器)优化
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述JVM 的编译器可以分为三类编译器：
-
-前端编译器：把 *.java 转变为 *.class 的过程。如 Sun 的 Javac 、Eclipse JDT 中的增量式编译器（ECJ）。
-JIT 编译器：把字节码转变为机器码的过程，如 HotSpot VM 的 C1、C2 编译器。
-AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机器代码的过程。
-
-本节讲述的仅限于第一类......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-29
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -616,11 +613,15 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
     <ul>
       
         <li>
-          <a href="/2018/12/06/LinkedList/">LinedList源码分析</a>
+          <a href="/2018/12/07/HashMap/">HashMap源码分析</a>
         </li>
       
         <li>
           <a href="/2018/12/06/ArrayList/">ArrayList源码分析</a>
+        </li>
+      
+        <li>
+          <a href="/2018/12/06/LinkedList/">LinedList源码分析</a>
         </li>
       
         <li>
@@ -629,10 +630,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
       
         <li>
           <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">Java 并发(三) - 活跃性和性能，死锁和显示锁</a>
-        </li>
-      
-        <li>
-          <a href="/2018/09/06/Java 并发(二) - Executor 框架/">Java 并发(二) - Executor 框架</a>
         </li>
       
     </ul>
