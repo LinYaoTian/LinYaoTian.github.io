@@ -202,6 +202,69 @@
 
 <div class="post-preview">
 
+    <a href="/2018/12/08/LinkedHashMap/">
+        <h2 class="post-title">
+            LinkedHashMap源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介继承关系图：
+
+可以看出，LinkedHashMap继承了HashMap，具有HashMap的所有功能；此外它还实现了一个Map接口，用来改造节点Entry&lt;K,V&gt;，此实现与HashMap的不同之处在于它维护了一个贯穿其所有条目的双向链表。 此链表定义了迭代顺序，通常是键插入映射的顺序。 请注意，如果将键重新插入LinkedHashMap，不会影响插入顺序。
+特点：
+
+不是......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-08
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/12/08/ConcurrentHashMap/">
+        <h2 class="post-title">
+            ConcurrentHashMap源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介HashMap 和 LinkedHashMap 都是线程不安全的，要实现使用线程安全的Map，可以有以下几个选项：
+
+Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable（synchrionized ），并发性不如ConcurrentHashMap，因为C......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-08
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/12/07/HashMap/">
         <h2 class="post-title">
             HashMap源码分析
@@ -220,6 +283,43 @@
         <p class="post-meta" style="margin: 10px 0;">
             Posted by LinYaoTian on
             2018-12-07
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/12/06/LinkedList/">
+        <h2 class="post-title">
+            LinkedList源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介特点：
+
+LinkedList底层是链表结构
+插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
+因为是链表结构，所以分配的空间不要求是连续的
+
+继承关系：
+
+源码定义：
+123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-06
         </p>
         <div class="tags">
             
@@ -253,43 +353,6 @@
 
 
 可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/06/LinkedList/">
-        <h2 class="post-title">
-            LinedList源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介特点：
-
-LinkedList底层是链表结构
-插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
-因为是链表结构，所以分配的空间不要求是连续的
-
-继承关系：
-
-源码定义：
-123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
         </div>
     </a>
     
@@ -467,64 +530,6 @@ Java 语言中的线程安全Java 中各种操作共享的数据分为以下 5 �
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/08/01/JVM(八) - Java内存模型与线程/">
-        <h2 class="post-title">
-            JVM(八) - Java内存模型与线程
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            内存一致性协议由于 CPU 执行速度很快，而从内存读取数据和向内存写入数据的过程跟 CPU 执行指令的速度比起来慢得多，因此如果任何时候对数据的操作都要通过和内存的交互来进行，会大大降低指令执行的速度。因此在 CPU 里面就有了高速缓存。
-当程序在运行过程中，会将运算需要的数据从主存复制一份到 CPU 的高速缓存中，那么 CPU 进行计算时就可以直接从它的高速缓存读取数据和向其中写入数据，当......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-08-01
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/07/30/JVM(七) - JVM 晚期(运行期)优化/">
-        <h2 class="post-title">
-            JVM(七) - JVM 晚期(运行期)优化
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述Java 程序在运行期间，可能会有某个方法或者代码运行特别频繁时，就会把这些代码认定为“热点代码”。为了提高热点代码的执行效率，在运行时 JVM 会将这些代码编译成与本地平台相关的机器码，并进行各种层次的优化，完成这个任务的编译器称为即时编译器（Just In Time Compiler，JIT 编译器）。
-解释器和编译器事实上，现在许多主流的商用虚拟机，都同时包含有解释器与编译器，解释......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-30
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -613,23 +618,23 @@ Java 语言中的线程安全Java 中各种操作共享的数据分为以下 5 �
     <ul>
       
         <li>
+          <a href="/2018/12/08/LinkedHashMap/">LinkedHashMap源码分析</a>
+        </li>
+      
+        <li>
+          <a href="/2018/12/08/ConcurrentHashMap/">ConcurrentHashMap源码分析</a>
+        </li>
+      
+        <li>
           <a href="/2018/12/07/HashMap/">HashMap源码分析</a>
         </li>
       
         <li>
+          <a href="/2018/12/06/LinkedList/">LinkedList源码分析</a>
+        </li>
+      
+        <li>
           <a href="/2018/12/06/ArrayList/">ArrayList源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/06/LinkedList/">LinedList源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/09/19/Java 并发(四) - 深入理解同步实现/">Java 并发(四) - 深入理解同步实现</a>
-        </li>
-      
-        <li>
-          <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">Java 并发(三) - 活跃性和性能，死锁和显示锁</a>
         </li>
       
     </ul>
