@@ -202,6 +202,72 @@
 
 <div class="post-preview">
 
+    <a href="/2018/09/06/Java 并发(二) - Executor 框架/">
+        <h2 class="post-title">
+            Java 并发(二) - Executor 框架
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            任务执行选择串行的方式执行任务，串行处理机制通常无法提高高吞吐率和快速响应性，于是我们可以显式地为任务创建线程，为每一个请求创建一个线程来执行任务，这样可以实现更高的响应性。 
+但是这样会带来很多问题： 
+
+线程的创建和销毁开销非常高 
+活跃的线程会消耗系统资源，尤其是内存。如果可运行的线程数量多于可用处理器的数量，那么有些线程就会闲置。大量空闲的线程会占用许多内存，给 GC 带来很大的压力......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-09-06
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/09/02/Java 并发(一) - 基础知识/">
+        <h2 class="post-title">
+            Java 并发(一) - 基础知识
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            线程安全性要编写线程安全的代码，其核心在于要对状态访问操作进行管理，特别是对共享的（Shared）和可变的（Mutable）状态的访问。
+“共享”意味着变量可以由多个线程同时访问，而“可变”则意味着变量的值在其生命周期内可以发生变化。
+
+如果当多个线程访问同一个可变的状态变量时没有使用合适的同步，那么程序就会出现错误。有三种方式可以修复这个问题：
+
+不在线程之间共享该状态变量
+将状态变量修改......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-09-02
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/08/02/JVM(九) - 线程安全与锁优化/">
         <h2 class="post-title">
             JVM(九) - 线程优化与锁优化
@@ -447,75 +513,6 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/24/JVM(一) - Java 内存区域/">
-        <h2 class="post-title">
-            JVM(一) - Java 内存区域
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            Java 内存区域Java 虚拟机在执行 Java 程序的过程中会把它所管理的内存分为若干个不同的数据区域 。这些区域都有各自的用途，以及创建和销毁的时间，有的区域遇着虚拟机进程的启动而存在，有的区域则依赖用户线程的启动和结束而建立和销毁。
-Java 内存区域也称为 Java 运行时数据区域。其中包括：程序计数器 ，虚拟机栈 ，本地方法栈 ，Java 堆 ，方法区 ，运行时常量池 。此外还有......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-24
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/02/10/ItemTouchHelper 实现可拖拽和侧滑的列表/">
-        <h2 class="post-title">
-            ItemTouchHelper 实现可拖拽和侧滑的列表
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            前言话不多说，直接上图：笔者使用 RecyclerView  的 ItemTouchHelper 来实现这个效果，过程非常简单。
-实现功能：
-
-按住 item 左侧的按钮可以上下拖动 item 
-向右侧滑删除 item
-item 拖动或侧滑时有阴影效果
-
-实现基本功能循序渐进学习，这里我们先实现基本的功能：
-
-长按 item 实现上下拖拽
-向右侧滑删除布局文件很简单，不多说，直接上代码：
-
-......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-02-10
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#View" title="View">View</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -612,19 +609,19 @@ item 拖动或侧滑时有阴影效果
         </li>
       
         <li>
+          <a href="/2018/12/09/TreeMap/">TreeMap</a>
+        </li>
+      
+        <li>
+          <a href="/2018/12/09/Set/">Set</a>
+        </li>
+      
+        <li>
           <a href="/2018/12/08/ConcurrentHashMap/">ConcurrentHashMap源码分析</a>
         </li>
       
         <li>
           <a href="/2018/12/08/LinkedHashMap/">LinkedHashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/07/HashMap/">HashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/06/ArrayList/">ArrayList源码分析</a>
         </li>
       
     </ul>

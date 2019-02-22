@@ -241,6 +241,72 @@ GitHub 项目在这里 LeavesLoading
 
 <div class="post-preview">
 
+    <a href="/2018/12/09/TreeMap/">
+        <h2 class="post-title">
+            TreeMap
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            TreeMap是基于红黑树（一种自平衡的二叉查找树）实现的一个保证有序性的Map。
+123public class TreeMap&lt;K,V&gt; extends AbstractMap&lt;K,V&gt;   implements NavigableMap&lt;K,V&gt;, Cloneable, java.io.Serializable&#123;&#125;
+
+TreeMa......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-09
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/12/09/Set/">
+        <h2 class="post-title">
+            Set
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            Set集合不包含重复的元素，这是使用Set的主要原因。有三种常见的Set实现——HashSet, TreeSet和LinkedHashSet。什么时候使用它们，使用哪个是个重要的问题。
+总体而言：
+
+如果你需要一个访问快速的Set，你应该使用HashSet；
+当你需要一个排序的Set，你应该使用TreeSet；
+当你需要记录下插入时的顺序时，你应该使用LinedHashSet
+
+HashSe......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-09
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/12/08/ConcurrentHashMap/">
         <h2 class="post-title">
             ConcurrentHashMap源码分析
@@ -471,72 +537,6 @@ LinkedList底层是链表结构
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/09/06/Java 并发(二) - Executor 框架/">
-        <h2 class="post-title">
-            Java 并发(二) - Executor 框架
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            任务执行选择串行的方式执行任务，串行处理机制通常无法提高高吞吐率和快速响应性，于是我们可以显式地为任务创建线程，为每一个请求创建一个线程来执行任务，这样可以实现更高的响应性。 
-但是这样会带来很多问题： 
-
-线程的创建和销毁开销非常高 
-活跃的线程会消耗系统资源，尤其是内存。如果可运行的线程数量多于可用处理器的数量，那么有些线程就会闲置。大量空闲的线程会占用许多内存，给 GC 带来很大的压力......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/02/Java 并发(一) - 基础知识/">
-        <h2 class="post-title">
-            Java 并发(一) - 基础知识
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            线程安全性要编写线程安全的代码，其核心在于要对状态访问操作进行管理，特别是对共享的（Shared）和可变的（Mutable）状态的访问。
-“共享”意味着变量可以由多个线程同时访问，而“可变”则意味着变量的值在其生命周期内可以发生变化。
-
-如果当多个线程访问同一个可变的状态变量时没有使用合适的同步，那么程序就会出现错误。有三种方式可以修复这个问题：
-
-不在线程之间共享该状态变量
-将状态变量修改......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-02
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -629,19 +629,19 @@ LinkedList底层是链表结构
         </li>
       
         <li>
+          <a href="/2018/12/09/TreeMap/">TreeMap</a>
+        </li>
+      
+        <li>
+          <a href="/2018/12/09/Set/">Set</a>
+        </li>
+      
+        <li>
           <a href="/2018/12/08/ConcurrentHashMap/">ConcurrentHashMap源码分析</a>
         </li>
       
         <li>
           <a href="/2018/12/08/LinkedHashMap/">LinkedHashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/07/HashMap/">HashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/06/ArrayList/">ArrayList源码分析</a>
         </li>
       
     </ul>
