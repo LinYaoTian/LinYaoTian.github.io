@@ -18,7 +18,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://LinYaoTian.github.io/">
+    <link rel="canonical" href="http://LinYaoTian.github.io/archives/3/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -202,334 +202,29 @@
 
 <div class="post-preview">
 
-    <a href="/2019/02/01/Android 自定义 View 之 LeavesLoading/">
+    <a href="/2018/02/07/仿知乎分享界面/">
         <h2 class="post-title">
-            Android 自定义 View 之 LeavesLoading
+            仿知乎分享界面
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1.前言前天的浏览 GitHub 时发现一个模仿 Gif 的 Loading 特效的项目，感觉效果很不错，也比较有创意，如下：
+            前言最近在做一个资讯类的APP，上面需要一个分享功能，项目不大，如果去使用官方的SDK还需要审查之类的，感觉太麻烦。偶然看到知乎的分享界面做得不错，拿到我这个项目中正合适，在网上查了一下资料，使用BottomSheetDialogFragment结合系统自带的分享功能就可以做到它的效果。
+知乎分享界面：
 
-GitHub 上好几个做这个效果的项目，但是很少有完全实现的，有的还有 Bug，于是花了 2 天实现了一下。
-效果如下：
-
-GitHub 项目在这里 LeavesLoading 
-2. 分析实现要求：
-
-叶子
-随机产生
-飘动轨迹为正弦函数，并且随机振幅
-飘动时伴随......
+自己完成的效果图：)
+布局文件1234567891011121314151617181......
         </div>
     </a>
     
         <p class="post-meta" style="margin: 10px 0;">
             Posted by LinYaoTian on
-            2019-02-01
+            2018-02-07
         </p>
         <div class="tags">
             
               <a href="/tags/#View" title="View">View</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/08/ConcurrentHashMap/">
-        <h2 class="post-title">
-            ConcurrentHashMap源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介HashMap 和 LinkedHashMap 都是线程不安全的，要实现使用线程安全的Map，可以有以下几个选项：
-
-Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable（synchrionized ），并发性不如ConcurrentHashMap，因为C......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-08
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/08/LinkedHashMap/">
-        <h2 class="post-title">
-            LinkedHashMap源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介继承关系图：
-
-可以看出，LinkedHashMap继承了HashMap，具有HashMap的所有功能；此外它还实现了一个Map接口，用来改造节点Entry&lt;K,V&gt;，此实现与HashMap的不同之处在于它维护了一个贯穿其所有条目的双向链表。 此链表定义了迭代顺序，通常是键插入映射的顺序。 请注意，如果将键重新插入LinkedHashMap，不会影响插入顺序。
-特点：
-
-不是......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-08
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/07/HashMap/">
-        <h2 class="post-title">
-            HashMap源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介Java为数据结构中的映射定义了一个接口java.util.Map，此接口主要有四个常用的实现类，分别是HashMap、Hashtable、LinkedHashMap和TreeMap，类继承关系如下图所示：
-
-下面针对各个实现类的特点做一些说明：
-(1) HashMap：它根据键的hashCode值存储数据，大多数情况下可以直接定位到它的值，因而具有很快的访问速度，但遍历顺序却是不确定的......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-07
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/06/ArrayList/">
-        <h2 class="post-title">
-            ArrayList源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介特点：
-
-按照下标快速随机访问
-允许存放多个null元素
-存储的元素有序且可以重复
-底层是Object数组
-增加元素个数可能很慢(可能需要扩容),删除元素可能很慢(可能需要移动很多元素)
-
-继承关系：
-
-
-可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/06/LinkedList/">
-        <h2 class="post-title">
-            LinkedList源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介特点：
-
-LinkedList底层是链表结构
-插入和删除比较快（O(1)），查询则相对慢一些（O(n)）
-因为是链表结构，所以分配的空间不要求是连续的
-
-继承关系：
-
-源码定义：
-123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/19/Java 并发(四) - 深入理解同步实现/">
-        <h2 class="post-title">
-            Java 并发(四) - 深入理解同步实现
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            构建自定义的同步工具内置的条件队列条件队列就如同烤面包机上的面包已好的铃声。如果你正在听着它, 当面包烤好后你可以立即注意到, 并且放下手头的事情开始品尝面包, 如果你没有听见它, 你会错过通知消息, 但是回到厨房后还是看到面包的状态, 如果已经烤完, 就取面包, 如果未烤完, 就再次监听铃声。
-条件队列中的元素是一个个正在等待相关条件的线程；每一个对象都可以作为一个条件队列，并且 Obje......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-19
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">
-        <h2 class="post-title">
-            Java 并发(三) - 活跃性和性能，死锁和显示锁
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            避免活跃性危险死锁定义：当一个线程永远占有一个锁，而其他线程尝试去获得这个锁，那么它们将永远被阻塞。
-例如：当线程占有锁A时, 想要获得锁B, 但是同时, 另一个线程持有B， 并尝试获得A， 两个线程将永远等待下去, 这种情况是死锁的最简单的形式 。
-一般来说，当死锁出现时，往往是在最糟糕的时候——高负载的情况下。
-锁顺序死锁锁顺序死锁的原因是：两个线程以不同的顺序来获得相同的锁。 
-
-如果......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/06/Java 并发(二) - Executor 框架/">
-        <h2 class="post-title">
-            Java 并发(二) - Executor 框架
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            任务执行选择串行的方式执行任务，串行处理机制通常无法提高高吞吐率和快速响应性，于是我们可以显式地为任务创建线程，为每一个请求创建一个线程来执行任务，这样可以实现更高的响应性。 
-但是这样会带来很多问题： 
-
-线程的创建和销毁开销非常高 
-活跃的线程会消耗系统资源，尤其是内存。如果可运行的线程数量多于可用处理器的数量，那么有些线程就会闲置。大量空闲的线程会占用许多内存，给 GC 带来很大的压力......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/02/Java 并发(一) - 基础知识/">
-        <h2 class="post-title">
-            Java 并发(一) - 基础知识
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            线程安全性要编写线程安全的代码，其核心在于要对状态访问操作进行管理，特别是对共享的（Shared）和可变的（Mutable）状态的访问。
-“共享”意味着变量可以由多个线程同时访问，而“可变”则意味着变量的值在其生命周期内可以发生变化。
-
-如果当多个线程访问同一个可变的状态变量时没有使用合适的同步，那么程序就会出现错误。有三种方式可以修复这个问题：
-
-不在线程之间共享该状态变量
-将状态变量修改......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-02
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
             
         </div>
     
@@ -543,10 +238,10 @@ LinkedList底层是链表结构
 
 <ul class="pager">
     
-    
-        <li class="next">
-            <a href="/archives/2/">Older Posts &rarr;</a>
+        <li class="previous">
+            <a href="/archives/2/">&larr; Newer Posts</a>
         </li>
+    
     
 </ul>
 

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          Android 自定义 View 之 LeavesLoading - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2019/02/01/Android 自定义 View 之 LeavesLoading/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#View" title="View">View</a>
+                            
+                        </div>
+                        <h1>Android 自定义 View 之 LeavesLoading</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2019-02-01
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1.前言"></a>1.前言</h1><p>前天的浏览 GitHub 时发现一个模仿 Gif 的 Loading 特效的项目，感觉效果很不错，也比较有创意，如下：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/2/1/168a7e7bb8fc1314?w=300&amp;h=225&amp;f=gif&amp;s=106198" alt=""></p>
+<p>GitHub 上好几个做这个效果的项目，但是很少有完全实现的，有的还有 Bug，于是花了 2 天实现了一下。</p>
+<p>效果如下：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/2/1/168a7e1a7a996451?w=544&amp;h=960&amp;f=gif&amp;s=10495890" alt=""></p>
+<p>GitHub 项目在这里 <a href="https://github.com/LinYaoTian/TestLeavesLoading" target="_blank" rel="noopener">LeavesLoading</a> </p>
+<h1 id="2-分析"><a href="#2-分析" class="headerlink" title="2. 分析"></a>2. 分析</h1><p>实现要求：</p>
+<ul>
+<li>叶子<ul>
+<li>随机产生</li>
+<li>飘动轨迹为正弦函数，并且随机振幅</li>
+<li>飘动时伴随自旋转，更符合物理规律</li>
+<li>遇到进度条似乎是融入的</li>
+</ul>
+</li>
+<li>风扇<ul>
+<li>可旋转 </li>
+<li>Loading == 100% 时显示一个动画</li>
+</ul>
+</li>
+<li>细节<ul>
+<li>风扇和叶子自适应 View 大小</li>
+<li>叶子在视觉上不能飘出 RountRect 边界</li>
+</ul>
+</li>
+</ul>
+<h1 id="3-核心实现"><a href="#3-核心实现" class="headerlink" title="3. 核心实现"></a>3. 核心实现</h1><h2 id="3-1-随机产生叶子"><a href="#3-1-随机产生叶子" class="headerlink" title="3.1 随机产生叶子"></a>3.1 随机产生叶子</h2><p>本质是事先产生一定数量叶子，这些叶子的漂动时的振幅、相位、旋转方向等等都是随机的，并且飘动是周期性地即叶子飘动到最左边时，又重新回到最右边。</p>
+<p>Leaf 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Leaf</span></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> x,y;<span class="comment">//坐标</span></span><br><span class="line">    AmplitudeType type;<span class="comment">//叶子飘动振幅</span></span><br><span class="line">    <span class="keyword">int</span> rotateAngle;<span class="comment">//旋转角度</span></span><br><span class="line">    RotateDir rotateDir;<span class="comment">//旋转方向</span></span><br><span class="line">    <span class="keyword">long</span> startTime;<span class="comment">//起始时间</span></span><br><span class="line">    <span class="keyword">int</span> n;<span class="comment">//初始相位</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Leaf 生成方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Leaf <span class="title">generateLeaf</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Leaf leaf = <span class="keyword">new</span> Leaf();</span><br><span class="line">    <span class="comment">//随机振幅</span></span><br><span class="line">    <span class="keyword">int</span> randomType = mRandom.nextInt(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">switch</span> (randomType)&#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">        <span class="comment">//小振幅</span></span><br><span class="line">        leaf.type = AmplitudeType.LITTLE;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment">//中等振幅</span></span><br><span class="line">        leaf.type = AmplitudeType.MIDDLE;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="comment">//大振幅</span></span><br><span class="line">        leaf.type = AmplitudeType.BIG;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//随机旋转方向</span></span><br><span class="line">    <span class="keyword">int</span> dir = mRandom.nextInt(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">switch</span> (dir)&#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">        <span class="comment">//逆时针</span></span><br><span class="line">        leaf.rotateDir = RotateDir.ANTICLOCKWISE;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="comment">//顺时针</span></span><br><span class="line">        leaf.rotateDir = RotateDir.CLOCKWISE;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//随机起始角度</span></span><br><span class="line">    leaf.rotateAngle = mRandom.nextInt(<span class="number">360</span>);</span><br><span class="line">    leaf.n = mRandom.nextInt(<span class="number">20</span>);</span><br><span class="line">    mAddTime += mRandom.nextInt((<span class="keyword">int</span>)mLeafFloatTime);</span><br><span class="line">    leaf.startTime = System.currentTimeMillis() + mAddTime;</span><br><span class="line">    <span class="keyword">return</span> leaf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-2-叶子飘动轨迹为正弦函数"><a href="#3-2-叶子飘动轨迹为正弦函数" class="headerlink" title="3.2 叶子飘动轨迹为正弦函数"></a>3.2 叶子飘动轨迹为正弦函数</h2><p>确定 Leaf 在某个时刻的坐标 ( x , y )： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 获取叶子的（x,y）位置</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> leaf 叶子</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> currentTime 当前时间</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">getLeafLocation</span><span class="params">(Leaf leaf,<span class="keyword">long</span> currentTime)</span></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> intervalTime = currentTime - leaf.startTime;<span class="comment">//飘动时长</span></span><br><span class="line">    <span class="keyword">if</span> (intervalTime &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="comment">// 此 Leaf 还没到飘动时间</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> (intervalTime &gt; mLeafFloatTime)&#123;</span><br><span class="line">      <span class="comment">// Leaf 的飘动时间大于指定的飘动时间，即叶子飘动到了最左边，应回到最右边</span></span><br><span class="line">      leaf.startTime = currentTime + <span class="keyword">new</span> Random().nextInt((<span class="keyword">int</span>)mLeafFloatTime);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 计算移动因子</span></span><br><span class="line">    <span class="keyword">float</span> fraction = (<span class="keyword">float</span>) intervalTime / mLeafFloatTime;</span><br><span class="line">    leaf.x = (<span class="number">1</span>-fraction)*mProgressLen;</span><br><span class="line">    leaf.y = getLeafLocationY(leaf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (leaf.x &lt;= mYellowOvalHeight / <span class="number">4</span>)&#123;</span><br><span class="line">      <span class="comment">//叶子飘到最左边，有可能会超出 RoundRect 边界，所以提前特殊处理</span></span><br><span class="line">      leaf.startTime = currentTime + <span class="keyword">new</span> Random().nextInt((<span class="keyword">int</span>)mLeafFloatTime);</span><br><span class="line">      leaf.x = mProgressLen;</span><br><span class="line">      leaf.y = getLeafLocationY(leaf);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要想让 Leaf 飘动轨迹为正弦函数，关键在于确定 Leaf 的 Y 轴坐标：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 获取叶子的Y轴坐标</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> leaf 叶子</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span> 经过计算的叶子Y轴坐标</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">float</span> <span class="title">getLeafLocationY</span><span class="params">(Leaf leaf)</span></span>&#123;</span><br><span class="line">     <span class="keyword">float</span> w = (<span class="keyword">float</span>) (Math.PI * <span class="number">2</span> / mProgressLen);<span class="comment">//角频率</span></span><br><span class="line">     <span class="keyword">float</span> A;<span class="comment">//计算振幅值</span></span><br><span class="line">     <span class="keyword">switch</span> (leaf.type)&#123;</span><br><span class="line">         <span class="keyword">case</span> LITTLE:</span><br><span class="line">             A = mLeafLen/<span class="number">3</span>;</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">         <span class="keyword">case</span> MIDDLE:</span><br><span class="line">             A = mLeafLen*<span class="number">2</span>/<span class="number">3</span>;</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">         <span class="keyword">default</span>:</span><br><span class="line">             A = mLeafLen;</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">// (mHeight-mLeafLen)/2 是为了让 Leaf 的Y轴起始位置居中</span></span><br><span class="line">     <span class="keyword">return</span> (<span class="keyword">float</span>) (A * Math.sin(w * leaf.x + leaf.n)+(mHeight-mLeafLen)/<span class="number">2</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-3-叶子飘动时自旋转"><a href="#3-3-叶子飘动时自旋转" class="headerlink" title="3.3 叶子飘动时自旋转"></a>3.3 叶子飘动时自旋转</h2><p>这里就涉及到了 Leaf 的绘制，其实 Gif 中的叶子和风扇都可以使用 Canves 直接绘制图案，但是这样就会有两个问题：</p>
+<ol>
+<li>难画：想要画出满意图形，并且还要旋转、缩放、平移可要下一番功夫。</li>
+<li>灵活性低：如果想换其他样式又得重新设计绘制过程。</li>
+</ol>
+<p>因此这里采用 <code>Canves.drawBitmap()</code> 的方式绘制，直接使用已有的图片作为叶子和风扇，同时利用 <code>Canves.drawBitmap()</code> 的一个重载的方法可以很方便的实现旋转、缩放、平移：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">drawBitmap</span><span class="params">(Bitmap bitmap,  Matrix matrix, Paint paint)</span> </span>;</span><br></pre></td></tr></table></figure>
+<p>就是通过这里的 Matrix 矩阵，它内部封装了 <code>postScale()</code>、<code>postTranslate</code> 、<code>postRotate()</code> 等方法，可以帮助我们快速的对 Bitmap 进行旋转、缩放、平移还有其他操作。使用时要记得配合 Canves 的 <code>save()</code> 和 <code>restore()</code> 使用，否则达不到想要的效果。</p>
+<p>对这方面不熟的朋友可以看看 <a href="https://hencoder.com/ui-1-4/" target="_blank" rel="noopener">HenCoder 的自定义 View 教学 1-4</a> 。</p>
+<p>绘制 Leaf 的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawLeaves</span><span class="params">(Canvas canvas)</span></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> currentTime = System.currentTimeMillis();</span><br><span class="line">    <span class="keyword">for</span> (Leaf leaf : mLeafList) &#123;</span><br><span class="line">        <span class="keyword">if</span> (currentTime &gt; leaf.startTime &amp;&amp; leaf.startTime != <span class="number">0</span>)&#123;</span><br><span class="line">          <span class="comment">// 获取 leaf 当前的坐标</span></span><br><span class="line">          getLeafLocation(leaf,currentTime);</span><br><span class="line">          canvas.save();</span><br><span class="line">          Matrix matrix = <span class="keyword">new</span> Matrix();</span><br><span class="line">          <span class="comment">// 缩放 自适应 View 的大小</span></span><br><span class="line">          <span class="keyword">float</span> scaleX = (<span class="keyword">float</span>) mLeafLen / mLeafBitmapWidth;</span><br><span class="line">          <span class="keyword">float</span> scaleY = (<span class="keyword">float</span>) mLeafLen / mLeafBitmapHeight;</span><br><span class="line">          matrix.postScale(scaleX,scaleY);</span><br><span class="line">          <span class="comment">// 位移</span></span><br><span class="line">          <span class="keyword">float</span> transX = leaf.x;</span><br><span class="line">          <span class="keyword">float</span> transY = leaf.y;</span><br><span class="line">          matrix.postTranslate(transX,transY);</span><br><span class="line">          <span class="comment">// 旋转</span></span><br><span class="line">          <span class="comment">// 计算旋转因子</span></span><br><span class="line">          <span class="keyword">float</span> rotateFraction = ((currentTime - leaf.startTime) % mLeafRotateTime)</span><br><span class="line">            /(<span class="keyword">float</span>)mLeafRotateTime;</span><br><span class="line">          <span class="keyword">float</span> rotate;</span><br><span class="line">          <span class="keyword">switch</span> (leaf.rotateDir)&#123;</span><br><span class="line">            <span class="keyword">case</span> CLOCKWISE:</span><br><span class="line">              <span class="comment">//顺时针</span></span><br><span class="line">              rotate = rotateFraction * <span class="number">360</span> + leaf.rotateAngle;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">              <span class="comment">//逆时针</span></span><br><span class="line">              rotate = -rotateFraction * <span class="number">360</span> + leaf.rotateAngle;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// 旋转中心选择 Leaf 的中心坐标</span></span><br><span class="line">          matrix.postRotate(rotate,transX + mLeafLen / <span class="number">2</span>,transY + mLeafLen / <span class="number">2</span>);</span><br><span class="line">          canvas.drawBitmap(mLeafBitmap,matrix,mBitmapPaint);</span><br><span class="line">          canvas.restore();</span><br><span class="line">        &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-4-Loading-100-出现动画"><a href="#3-4-Loading-100-出现动画" class="headerlink" title="3.4 Loading == 100% 出现动画"></a>3.4 Loading == 100% 出现动画</h2><p>增加一个判断字段 isLoadingCompleted ，在 <code>onDraw()</code> 中选择对应绘制策略。</p>
+<p>isLoadingCompleted 在 <code>setProgress()</code> 中根据 progress 设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 设置进度（自动刷新）</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> progress 0-100</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setProgress</span><span class="params">(<span class="keyword">int</span> progress)</span></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (progress &lt; <span class="number">0</span>)&#123;</span><br><span class="line">         mProgress = <span class="number">0</span>;</span><br><span class="line">     &#125;<span class="keyword">else</span> <span class="keyword">if</span> (progress &gt; <span class="number">100</span>)&#123;</span><br><span class="line">         mProgress = <span class="number">100</span>;</span><br><span class="line">     &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">         mProgress = progress;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">if</span> (progress == <span class="number">100</span>)&#123;</span><br><span class="line">         isLoadingCompleted = <span class="keyword">true</span>;</span><br><span class="line">     &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">         isLoadingCompleted = <span class="keyword">false</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">// 255 不透明</span></span><br><span class="line">     mCompletedFanPaint.setAlpha(<span class="number">255</span>);</span><br><span class="line">     postInvalidate();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><code>LeavesLoading.onDraw()</code> 部分实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">super</span>.onDraw(canvas);</span><br><span class="line">     ......</span><br><span class="line">     <span class="keyword">if</span> (isLoadingCompleted)&#123;</span><br><span class="line">         <span class="comment">//绘制加载完成特效</span></span><br><span class="line">         drawCompleted(canvas);</span><br><span class="line">     &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">         <span class="comment">//绘制扇叶</span></span><br><span class="line">         drawFan(canvas,mFanLen,mBitmapPaint);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">//刷新</span></span><br><span class="line">     postInvalidate();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><code>drawCompleted()</code> 实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawCompleted</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 每次绘制风扇透明度递减10</span></span><br><span class="line">    <span class="keyword">int</span> alpha = mCompletedFanPaint.getAlpha() - <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">if</span> (alpha &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">        alpha = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    mCompletedFanPaint.setAlpha(alpha);</span><br><span class="line">    <span class="comment">// 文字透明度刚好与风扇相反</span></span><br><span class="line">    mCompletedTextPaint.setAlpha(<span class="number">255</span>-alpha);</span><br><span class="line">    <span class="comment">// 计算透明因子</span></span><br><span class="line">    <span class="keyword">float</span> fraction = alpha / <span class="number">255f</span>;</span><br><span class="line">    <span class="comment">// 叶片大小 和 文字大小 也是相反变化的</span></span><br><span class="line">    <span class="keyword">float</span> fanLen = fraction * mFanLen;</span><br><span class="line">    <span class="keyword">float</span> textSize = (<span class="number">1</span> - fraction) * mCompletedTextSize;</span><br><span class="line">    mCompletedTextPaint.setTextSize(textSize);</span><br><span class="line">     <span class="comment">//测量文字占用空间</span></span><br><span class="line">    Rect bounds = <span class="keyword">new</span> Rect();</span><br><span class="line">    mCompletedTextPaint.getTextBounds(</span><br><span class="line">            LOADING_COMPLETED,</span><br><span class="line">            <span class="number">0</span>,</span><br><span class="line">            LOADING_COMPLETED.length(),</span><br><span class="line">            bounds);</span><br><span class="line">  	<span class="comment">// 与 drawLeaf() 相似，不再赘述</span></span><br><span class="line">    drawFan(canvas, (<span class="keyword">int</span>) fanLen, mCompletedFanPaint);</span><br><span class="line">    <span class="comment">//画文字</span></span><br><span class="line">    canvas.drawText(</span><br><span class="line">            LOADING_COMPLETED,</span><br><span class="line">            <span class="number">0</span>,</span><br><span class="line">            LOADING_COMPLETED.length(),</span><br><span class="line">            mFanCx-bounds.width()/<span class="number">2f</span>,</span><br><span class="line">            mFanCy+bounds.height()/<span class="number">2f</span>,</span><br><span class="line">            mCompletedTextPaint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程：计算风扇和文字透明度 -&gt; 计算风扇和文字大小以及文字占用空间 -&gt; 绘制 ，注释写得比较清楚就不赘述了。</p>
+<h1 id="4-结束"><a href="#4-结束" class="headerlink" title="4. 结束"></a>4. 结束</h1><p>如果觉得 <a href="https://github.com/LinYaoTian/TestLeavesLoading" target="_blank" rel="noopener">LeavesLoading</a> 对您有任何帮助，希望可以在 GitHub 得到您的 Star ！</p>
+<p>Thanks：</p>
+<ul>
+<li><a href="https://me.csdn.net/tianjian4592" target="_blank" rel="noopener">GAStudio</a> 的这篇<a href="https://blog.csdn.net/tianjian4592/article/details/44538605" target="_blank" rel="noopener">文章</a>提供的核心代码参考</li>
+</ul>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/12/08/ConcurrentHashMap/" data-toggle="tooltip" data-placement="top" title="ConcurrentHashMap源码分析">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#1-前言"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1.前言</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#2-分析"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2. 分析</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#3-核心实现"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3. 核心实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-1-随机产生叶子"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">3.1 随机产生叶子</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-2-叶子飘动轨迹为正弦函数"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">3.2 叶子飘动轨迹为正弦函数</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-3-叶子飘动时自旋转"><span class="toc-nav-number">3.3.</span> <span class="toc-nav-text">3.3 叶子飘动时自旋转</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-4-Loading-100-出现动画"><span class="toc-nav-number">3.4.</span> <span class="toc-nav-text">3.4 Loading == 100% 出现动画</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#4-结束"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4. 结束</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2019/02/01/Android 自定义 View 之 LeavesLoading/";
+    var disqus_url = "http://LinYaoTian.github.io/2019/02/01/Android 自定义 View 之 LeavesLoading/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
