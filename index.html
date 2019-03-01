@@ -202,9 +202,41 @@
 
 <div class="post-preview">
 
-    <a href="/2019/03/01/RecyclerView缓存解析/">
+    <a href="/2019/02/03/ListView 和 RecyclerView 的缓存对比/">
         <h2 class="post-title">
-            Untitled
+            ListView 与 RecyclerView 缓存对比
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            相关知识：
+ListView 和 RecyclerView 的缓存机制原理大致相似，如下图所示：
+
+过程中，离屏的ItemView即被回收至缓存，入屏的ItemView则会优先从缓存中获取，只是ListView与RecyclerView的实现细节有差异。（这只是缓存使用的其中一个场景，还有如刷新等）
+缓存机制对比1.层级不同RecyclerView 比 ListView 多了两层缓存，支持多......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2019-02-03
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#View" title="View">View</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2019/02/03/RecyclerView缓存解析/">
+        <h2 class="post-title">
+            RecyclerView 缓存解析
         </h2>
         <h3 class="post-subtitle">
             
@@ -219,9 +251,11 @@ mAttachedScrap: 缓......
     
         <p class="post-meta" style="margin: 10px 0;">
             Posted by LinYaoTian on
-            2019-03-01
+            2019-02-03
         </p>
         <div class="tags">
+            
+              <a href="/tags/#View" title="View">View</a>
             
         </div>
     
@@ -366,17 +400,20 @@ HashSe......
 
 <div class="post-preview">
 
-    <a href="/2018/12/08/ConcurrentHashMap/">
+    <a href="/2018/12/08/LinkedHashMap/">
         <h2 class="post-title">
-            ConcurrentHashMap源码分析
+            LinkedHashMap源码分析
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            简介HashMap 和 LinkedHashMap 都是线程不安全的，要实现使用线程安全的Map，可以有以下几个选项：
+            简介继承关系图：
 
-Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable（synchrionized ），并发性不如ConcurrentHashMap，因为C......
+可以看出，LinkedHashMap继承了HashMap，具有HashMap的所有功能；此外它还实现了一个Map接口，用来改造节点Entry&lt;K,V&gt;，此实现与HashMap的不同之处在于它维护了一个贯穿其所有条目的双向链表。 此链表定义了迭代顺序，通常是键插入映射的顺序。 请注意，如果将键重新插入LinkedHashMap，不会影响插入顺序。
+特点：
+
+不是......
         </div>
     </a>
     
@@ -396,20 +433,17 @@ Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似�
 
 <div class="post-preview">
 
-    <a href="/2018/12/08/LinkedHashMap/">
+    <a href="/2018/12/08/ConcurrentHashMap/">
         <h2 class="post-title">
-            LinkedHashMap源码分析
+            ConcurrentHashMap源码分析
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            简介继承关系图：
+            简介HashMap 和 LinkedHashMap 都是线程不安全的，要实现使用线程安全的Map，可以有以下几个选项：
 
-可以看出，LinkedHashMap继承了HashMap，具有HashMap的所有功能；此外它还实现了一个Map接口，用来改造节点Entry&lt;K,V&gt;，此实现与HashMap的不同之处在于它维护了一个贯穿其所有条目的双向链表。 此链表定义了迭代顺序，通常是键插入映射的顺序。 请注意，如果将键重新插入LinkedHashMap，不会影响插入顺序。
-特点：
-
-不是......
+Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable（synchrionized ），并发性不如ConcurrentHashMap，因为C......
         </div>
     </a>
     
@@ -478,45 +512,6 @@ LinkedList底层是链表结构
 
 源码定义：
 123public class LinkedList&lt;E&gt;    extends AbstractSequentialList&lt;E&gt;    implements List&lt;E&gt......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/12/06/ArrayList/">
-        <h2 class="post-title">
-            ArrayList源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介特点：
-
-按照下标快速随机访问
-允许存放多个null元素
-存储的元素有序且可以重复
-底层是Object数组
-增加元素个数可能很慢(可能需要扩容),删除元素可能很慢(可能需要移动很多元素)
-
-继承关系：
-
-
-可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
         </div>
     </a>
     
@@ -622,7 +617,11 @@ LinkedList底层是链表结构
     <ul>
       
         <li>
-          <a href="/2019/03/01/RecyclerView缓存解析/">(no title)</a>
+          <a href="/2019/02/03/ListView 和 RecyclerView 的缓存对比/">ListView 与 RecyclerView 缓存对比</a>
+        </li>
+      
+        <li>
+          <a href="/2019/02/03/RecyclerView缓存解析/">RecyclerView 缓存解析</a>
         </li>
       
         <li>
@@ -635,10 +634,6 @@ LinkedList底层是链表结构
       
         <li>
           <a href="/2018/12/09/TreeMap/">TreeMap</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/09/Set/">Set</a>
         </li>
       
     </ul>

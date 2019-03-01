@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          LinYT&#39;s Blog
+          RecyclerView 缓存解析 - LinYT&#39;s Blog
         
     </title>
 
-    <link rel="canonical" href="http://LinYaoTian.github.io/2019/03/01/RecyclerView缓存解析/">
+    <link rel="canonical" href="http://LinYaoTian.github.io/2019/02/03/RecyclerView缓存解析/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -86,12 +86,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
+                              <a class="tag" href="/tags/#View" title="View">View</a>
+                            
                         </div>
-                        <h1></h1>
+                        <h1>RecyclerView 缓存解析</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by LinYaoTian on
-                            2019-03-01
+                            2019-02-03
                         </span>
                     </div>
                 
@@ -295,6 +297,10 @@
                 <!-- Pager -->
                 <ul class="pager">
                     
+                        <li class="previous">
+                            <a href="/2019/02/03/ListView 和 RecyclerView 的缓存对比/" data-toggle="tooltip" data-placement="top" title="ListView 与 RecyclerView 缓存对比">&larr; Previous Post</a>
+                        </li>
+                    
                     
                         <li class="next">
                             <a href="/2019/02/03/ListView缓存解析/" data-toggle="tooltip" data-placement="top" title="ListView 缓存解析">Next Post &rarr;</a>
@@ -322,6 +328,17 @@
             <!-- Tabe of Content -->
             <!-- Table of Contents -->
 
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#RecyclerView-LayoutManager"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">RecyclerView$LayoutManager</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Layout"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">Layout</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#第一次-Layout"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">第一次 Layout</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#第-1-个重要函数"><span class="toc-nav-number">2.1.1.</span> <span class="toc-nav-text">第 1 个重要函数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#第-2-个重要函数"><span class="toc-nav-number">2.1.2.</span> <span class="toc-nav-text">第 2 个重要函数</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#第二次-Layout"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">第二次 Layout</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#RecycledViewPool-的结构"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">RecycledViewPool 的结构</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#总结"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">总结</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
                 
             <!-- Sidebar Container -->
             <div class="
@@ -346,8 +363,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "your-disqus-ID";
-    var disqus_identifier = "http://LinYaoTian.github.io/2019/03/01/RecyclerView缓存解析/";
-    var disqus_url = "http://LinYaoTian.github.io/2019/03/01/RecyclerView缓存解析/";
+    var disqus_identifier = "http://LinYaoTian.github.io/2019/02/03/RecyclerView缓存解析/";
+    var disqus_url = "http://LinYaoTian.github.io/2019/02/03/RecyclerView缓存解析/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

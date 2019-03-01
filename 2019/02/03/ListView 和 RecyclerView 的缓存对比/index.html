@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          ListView 与 RecyclerView 缓存对比 - LinYT&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://LinYaoTian.github.io/2019/02/03/ListView 和 RecyclerView 的缓存对比/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#View" title="View">View</a>
+                            
+                        </div>
+                        <h1>ListView 与 RecyclerView 缓存对比</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by LinYaoTian on
+                            2019-02-03
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">LinYaoTian&#39;s Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <p>相关知识：</p>
+<p>ListView 和 RecyclerView 的缓存机制原理大致相似，如下图所示：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufzCkX1dEY7oa7GEXf6kNmDGrGmu7W8wgrTaepT7cibpblRQdI6A1r7Ww/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt=""></p>
+<p>过程中，离屏的ItemView即被回收至缓存，入屏的ItemView则会优先从缓存中获取，只是ListView与RecyclerView的实现细节有差异。（这只是缓存使用的其中一个场景，还有如刷新等）</p>
+<h1 id="缓存机制对比"><a href="#缓存机制对比" class="headerlink" title="缓存机制对比"></a>缓存机制对比</h1><h2 id="1-层级不同"><a href="#1-层级不同" class="headerlink" title="1.层级不同"></a>1.层级不同</h2><p>RecyclerView 比 ListView 多了两层缓存，支持多个离屏 ItemView 的缓存，支持开发者自定义缓存处理逻辑，支持所有 RecyclerView 共用一个 RecyclerViewPool 缓存池。</p>
+<p>具体来说：</p>
+<p>ListView(两级缓存)：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufHz28MwvsyiboPFm87p0KP9X8tXSxfyMa418y5A6W4IM1YHxzIWyegnA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>RecyclerView(四级缓存)：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufC6icrM5bKUMlvibopVTofN5qahSLwvibk3QDL48tib20PmcGB5EgKjjy9g/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>ListView 和 RecyclerView 缓存机制基本一致：</p>
+<p>1). mActiveViews 和 mAttachedScrap 功能相似，意义在于快速重用屏幕上可见的列表项 ItemView，而不需要重新 createView和 bindView。</p>
+<p>2). mScrapView 和 mCachedViews + mReyclerViewPool 功能相似，意义在于缓存离开屏幕的 ItemView，目的是让即将进入屏幕的 ItemView 重用。</p>
+<p>3). RecyclerView 的优势在于：</p>
+<ul>
+<li>a.mCacheViews 的使用，可以做到屏幕外的列表项 ItemView 进入屏幕内时也无须 bindView 快速重用；</li>
+<li>b.mRecyclerPool 可以供多个 RecyclerView 共同使用，在特定场景下，如 viewpaper + 多个列表页下有优势，客观来说，RecyclerView 在特定场景下对 ListView 的缓存机制做了补充和完善。</li>
+</ul>
+<h2 id="2-缓存的对象不同"><a href="#2-缓存的对象不同" class="headerlink" title="2.缓存的对象不同"></a>2.缓存的对象不同</h2><p>1). RecyclerView 缓存 ViewHolder，抽象可理解为：View + ViewHolder(避免每次 createView 时调用 findViewById) + flag(标识状态)；<br>2). ListView 直接缓存 View。</p>
+<p>缓存不同，二者在缓存的使用上也略有差别，具体来说：</p>
+<p>ListView获取缓存的流程：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufCXA793Su8XIsICg4MXBhnQZpTcy4mrYicqqz075zF26aXNopowaCArg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>RecyclerView获取缓存的流程：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufBl8lqBPiaTQtBPno9NB2RI1qmSXXWcLCk9lWnVuENWkGazmMnUQ6YSg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>1).RecyclerView 中 mCacheViews(屏幕外)获取缓存时，是通过匹配 pos 获取目标位置的缓存，这样做的好处是，当数据源数据不变的情况下，无须重新 bindView。</p>
+<blockquote>
+<p>情景：用手指上下滑动，重复让 2-3 个 Item 滑出和滑入屏幕，此时是不需要重新 bindView 的。如果一直向一个方向滑动，RecyclerView 还是会去 bindView，因为 mCacheViews 缓存空间有限。</p>
+</blockquote>
+<p>而同样是离屏缓存，ListView 从 mScrapViews 根据 pos 获取相应的缓存，但是并没有直接使用，而是重新 getView（即必定会重新 bindView），相关代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//通过匹配pos从mScrapView中获取缓存</span></span><br><span class="line"><span class="keyword">final</span> View scrapView = mRecycler.getScrapView(position);</span><br><span class="line"><span class="comment">//无论是否成功都直接调用getView,导致必定会调用createView</span></span><br><span class="line"><span class="keyword">final</span> View child = mAdapter.getView(position, scrapView, <span class="keyword">this</span>);</span><br><span class="line"><span class="keyword">if</span> (scrapView != <span class="keyword">null</span>) &#123;    </span><br><span class="line">  	<span class="keyword">if</span> (child != scrapView) &#123;</span><br><span class="line">        mRecycler.addScrapView(scrapView, position);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2).ListView 中通过 pos 获取的是 view，即 pos → view。<br>RecyclerView 中通过 pos 获取的是 viewholder，即 pos → (view，viewHolder，flag)；<br>从流程图中可以看出，标志 flag 的作用是判断 view 是否需要重新 bindView，这也是 RecyclerView 实现局部刷新的一个核心。</p>
+<h1 id="局部刷新"><a href="#局部刷新" class="headerlink" title="局部刷新"></a>局部刷新</h1><p>由上文可知，RecyclerView 的缓存机制确实更加完善，但还不算质的变化，RecyclerView 更大的亮点在于提供了局部刷新的接口，通过局部刷新，就能避免调用许多无用的 bindView。</p>
+<p>[RecyclerView和ListView添加，移除Item效果对比]</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_gif/tnZGrhTk4desHkFxgnbyfgeoUgmoppufwpbbQXbXukEj3Rs1yVy43IOZp4gWnibZyVricL3adRtqGQ6YJDsqicQOA/0?wx_fmt=gif&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1" alt=""></p>
+<p>结合 RecyclerView 的缓存机制，看看局部刷新是如何实现的：以 RecyclerView 中 <code>notifyItemRemoved(1)</code> 为例，最终会调用 <code>requestLayout()</code>，使整个 RecyclerView 重新绘制，过程为：</p>
+<p>onMeasure()→onLayout()→onDraw()</p>
+<p>其中，onLayout() 为重点，分为三步：</p>
+<ol>
+<li><code>dispatchLayoutStep1()</code>：记录 RecyclerView 刷新前列表项 ItemView 的各种信息，如 Top、Left、Bottom、Right，用于动画的相关计算；</li>
+<li><code>dispatchLayoutStep2()</code>：真正测量布局大小，位置，核心函数为 <code>layoutChildren()</code>；</li>
+<li><code>dispatchLayoutStep3()</code>：计算布局前后各个 ItemView 的状态，如Remove、Add、Move、Update等，如有必要执行相应的动画。</li>
+</ol>
+<p>其中，<code>layoutChildren()</code>流程图：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufOdt3rQ8IoekNogJp9preqdUBJtFGibic8PmSIe6gh5noYbjPBfKKUqqw/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufQAFiaDGwMgrTicOD5FSVvyeCTl6diblTj4tMDOfmqTrriaQwiaH2AtyPWnw/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>当调用 <code>notifyItemRemoved()</code> 时，会对屏幕内 ItemView 做预处理，修改 ItemView 相应的 pos 以及 flag (流程图中红色部分)：</p>
+<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufnj0cS4ZVuKFldI9LRxtqCFxoMzSqzqkgP5jKHBuuWz2Mtic7swygqQg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p>当调用<code>fill()</code>中 <code>RecyclerView.getViewForPosition(pos)</code> 时，RecyclerView 通过对 pos 和 flag 的预处理，使得<code>bindview()</code>只调用一次.</p>
+<p>需要指出，ListView 和RecyclerView最大的区别在于数据源改变时的缓存的处理逻辑，ListView是”一锅端”，将所有的 View 都重新 <code>bindView()</code>，而 RecyclerView 则是更加灵活地对每个 View 修改标志位，区分是否重新<code>bindView()</code>。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>Bugly 的 <a href="https://mp.weixin.qq.com/s?__biz=MzA3NTYzODYzMg==&amp;mid=2653578065&amp;idx=2&amp;sn=25e64a8bb7b5934cf0ce2e49549a80d6&amp;chksm=84b3b156b3c43840061c28869671da915a25cf3be54891f040a3532e1bb17f9d32e244b79e3f&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Android ListView 与 RecyclerView 对比浅析–缓存机制</a></p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/02/03/RecyclerView缓存解析/" data-toggle="tooltip" data-placement="top" title="RecyclerView 缓存解析">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                    <div class="comment">
+                        <div id="disqus_thread" class="disqus-thread"></div>
+                    </div>
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#缓存机制对比"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">缓存机制对比</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-层级不同"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.层级不同</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-缓存的对象不同"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">2.缓存的对象不同</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#局部刷新"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">局部刷新</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#参考"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">参考</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus embedded js code start (one page only need to embed once) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "your-disqus-ID";
+    var disqus_identifier = "http://LinYaoTian.github.io/2019/02/03/ListView 和 RecyclerView 的缓存对比/";
+    var disqus_url = "http://LinYaoTian.github.io/2019/02/03/ListView 和 RecyclerView 的缓存对比/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus embedded js code start end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/LinYaoTian">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; LinYaoTian 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://beantech.org">BeanTech</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=YenYuHsuan&repo=hexo-theme-beantech&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://LinYaoTian.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="http://LinYaoTian.github.io/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

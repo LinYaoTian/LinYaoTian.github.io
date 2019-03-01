@@ -202,6 +202,45 @@
 
 <div class="post-preview">
 
+    <a href="/2018/12/06/ArrayList/">
+        <h2 class="post-title">
+            ArrayList源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            简介特点：
+
+按照下标快速随机访问
+允许存放多个null元素
+存储的元素有序且可以重复
+底层是Object数组
+增加元素个数可能很慢(可能需要扩容),删除元素可能很慢(可能需要移动很多元素)
+
+继承关系：
+
+
+可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-12-06
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/09/19/Java 并发(四) - 深入理解同步实现/">
         <h2 class="post-title">
             Java 并发(四) - 深入理解同步实现
@@ -487,35 +526,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/27/JVM(四) - 虚拟机的类加载机制/">
-        <h2 class="post-title">
-            JVM(四) - 虚拟机的类加载机制
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述虚拟机把描述类的数据从 Class 文件加载到内存，并对数据进行校验，转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的类加载机制。
-与哪些在编译时需要进行连接工作的语言不同，在 Java 语言里，类型的加载、连接和初始化过程都是在程序运行期间完成的，这种策略虽然会令类加载时稍微增加一些性能开销，但是会为 Java 应用程序提供高度的灵活性，Java 里天生......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-27
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -608,7 +618,11 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
     <ul>
       
         <li>
-          <a href="/2019/03/01/RecyclerView缓存解析/">(no title)</a>
+          <a href="/2019/02/03/ListView 和 RecyclerView 的缓存对比/">ListView 与 RecyclerView 缓存对比</a>
+        </li>
+      
+        <li>
+          <a href="/2019/02/03/RecyclerView缓存解析/">RecyclerView 缓存解析</a>
         </li>
       
         <li>
@@ -621,10 +635,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
       
         <li>
           <a href="/2018/12/09/TreeMap/">TreeMap</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/09/Set/">Set</a>
         </li>
       
     </ul>
