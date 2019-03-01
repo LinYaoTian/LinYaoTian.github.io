@@ -202,6 +202,65 @@
 
 <div class="post-preview">
 
+    <a href="/2019/03/01/RecyclerView缓存解析/">
+        <h2 class="post-title">
+            Untitled
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            RecyclerView 和 ListView 的回收机制非常相似，但是 ListView 是以 View 作为单位进行回收，RecyclerView 是以 ViewHolder 作为单位进行回收。相比于 ListView，RecyclerView 的回收机制更为完善。
+Recycler 是 RecyclerView 回收机制的实现类，他实现了四级缓存：
+
+mAttachedScrap: 缓......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2019-03-01
+        </p>
+        <div class="tags">
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2019/02/03/ListView缓存解析/">
+        <h2 class="post-title">
+            ListView 缓存解析
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            AbsListView继承关系
+从继承关系中可以看出，GridView 和 ListView 都是继承自 AbsListView，因此两者在工作原理和实现上都是有很多共同点的，而缓存逻辑应为 GridView 和 ListView 共有的，因此缓存应该是在 AbsListView 中实现的。
+Adapter 的作用顾名思义，Adapter 是适配器的意思，它的作用是在 ListView 和数......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2019-02-03
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#View" title="View">View</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2019/02/01/Android 自定义 View 之 LeavesLoading/">
         <h2 class="post-title">
             Android 自定义 View 之 LeavesLoading
@@ -401,45 +460,6 @@ Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似�
 
 <div class="post-preview">
 
-    <a href="/2018/12/06/ArrayList/">
-        <h2 class="post-title">
-            ArrayList源码分析
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            简介特点：
-
-按照下标快速随机访问
-允许存放多个null元素
-存储的元素有序且可以重复
-底层是Object数组
-增加元素个数可能很慢(可能需要扩容),删除元素可能很慢(可能需要移动很多元素)
-
-继承关系：
-
-
-可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-12-06
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
     <a href="/2018/12/06/LinkedList/">
         <h2 class="post-title">
             LinkedList源码分析
@@ -477,59 +497,36 @@ LinkedList底层是链表结构
 
 <div class="post-preview">
 
-    <a href="/2018/09/19/Java 并发(四) - 深入理解同步实现/">
+    <a href="/2018/12/06/ArrayList/">
         <h2 class="post-title">
-            Java 并发(四) - 深入理解同步实现
+            ArrayList源码分析
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            构建自定义的同步工具内置的条件队列条件队列就如同烤面包机上的面包已好的铃声。如果你正在听着它, 当面包烤好后你可以立即注意到, 并且放下手头的事情开始品尝面包, 如果你没有听见它, 你会错过通知消息, 但是回到厨房后还是看到面包的状态, 如果已经烤完, 就取面包, 如果未烤完, 就再次监听铃声。
-条件队列中的元素是一个个正在等待相关条件的线程；每一个对象都可以作为一个条件队列，并且 Obje......
+            简介特点：
+
+按照下标快速随机访问
+允许存放多个null元素
+存储的元素有序且可以重复
+底层是Object数组
+增加元素个数可能很慢(可能需要扩容),删除元素可能很慢(可能需要移动很多元素)
+
+继承关系：
+
+
+可以看到继承了AbstractList，此类提供 List 接口的骨干实现，以最大限度地减少实现”随机访问”数据存储（如数组）支持的该接口所需的工作；对于连续的访问数据（如链表），应优......
         </div>
     </a>
     
         <p class="post-meta" style="margin: 10px 0;">
             Posted by LinYaoTian on
-            2018-09-19
+            2018-12-06
         </p>
         <div class="tags">
             
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">
-        <h2 class="post-title">
-            Java 并发(三) - 活跃性和性能，死锁和显示锁
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            避免活跃性危险死锁定义：当一个线程永远占有一个锁，而其他线程尝试去获得这个锁，那么它们将永远被阻塞。
-例如：当线程占有锁A时, 想要获得锁B, 但是同时, 另一个线程持有B， 并尝试获得A， 两个线程将永远等待下去, 这种情况是死锁的最简单的形式 。
-一般来说，当死锁出现时，往往是在最糟糕的时候——高负载的情况下。
-锁顺序死锁锁顺序死锁的原因是：两个线程以不同的顺序来获得相同的锁。 
-
-如果......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-09-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+              <a href="/tags/#Java集合框架" title="Java集合框架">Java集合框架</a>
             
         </div>
     
@@ -625,6 +622,14 @@ LinkedList底层是链表结构
     <ul>
       
         <li>
+          <a href="/2019/03/01/RecyclerView缓存解析/">(no title)</a>
+        </li>
+      
+        <li>
+          <a href="/2019/02/03/ListView缓存解析/">ListView 缓存解析</a>
+        </li>
+      
+        <li>
           <a href="/2019/02/01/Android 自定义 View 之 LeavesLoading/">Android 自定义 View 之 LeavesLoading</a>
         </li>
       
@@ -634,14 +639,6 @@ LinkedList底层是链表结构
       
         <li>
           <a href="/2018/12/09/Set/">Set</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/08/ConcurrentHashMap/">ConcurrentHashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/08/LinkedHashMap/">LinkedHashMap源码分析</a>
         </li>
       
     </ul>

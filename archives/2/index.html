@@ -202,6 +202,68 @@
 
 <div class="post-preview">
 
+    <a href="/2018/09/19/Java 并发(四) - 深入理解同步实现/">
+        <h2 class="post-title">
+            Java 并发(四) - 深入理解同步实现
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            构建自定义的同步工具内置的条件队列条件队列就如同烤面包机上的面包已好的铃声。如果你正在听着它, 当面包烤好后你可以立即注意到, 并且放下手头的事情开始品尝面包, 如果你没有听见它, 你会错过通知消息, 但是回到厨房后还是看到面包的状态, 如果已经烤完, 就取面包, 如果未烤完, 就再次监听铃声。
+条件队列中的元素是一个个正在等待相关条件的线程；每一个对象都可以作为一个条件队列，并且 Obje......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-09-19
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2018/09/15/Java-并发(三) - 活跃性和性能，死锁和显示锁/">
+        <h2 class="post-title">
+            Java 并发(三) - 活跃性和性能，死锁和显示锁
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            避免活跃性危险死锁定义：当一个线程永远占有一个锁，而其他线程尝试去获得这个锁，那么它们将永远被阻塞。
+例如：当线程占有锁A时, 想要获得锁B, 但是同时, 另一个线程持有B， 并尝试获得A， 两个线程将永远等待下去, 这种情况是死锁的最简单的形式 。
+一般来说，当死锁出现时，往往是在最糟糕的时候——高负载的情况下。
+锁顺序死锁锁顺序死锁的原因是：两个线程以不同的顺序来获得相同的锁。 
+
+如果......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by LinYaoTian on
+            2018-09-15
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#Java 并发" title="Java 并发">Java 并发</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/2018/09/06/Java 并发(二) - Executor 框架/">
         <h2 class="post-title">
             Java 并发(二) - Executor 框架
@@ -454,65 +516,6 @@ AOT 编译器：静态提前编译器，直接将 *.java 文件编译本地机�
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2018/07/26/JVM(三) - 类文件结构/">
-        <h2 class="post-title">
-            JVM(三) - 类文件结构
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述实现语言无关性的基础仍然是虚拟机和字节码存储格式。Java 虚拟机不和包括 Java 在内的任何语言绑定，它只与“ Class 文件”这种特定的二进制文件格式所关联，Class 文件中包含了 Java 虚拟机指令集和符号以及若干其他辅助的信息。
-
-Java 语言中的各种变量、关键字和运算符的语义最终都是由多条字节码命令组合而成的，因此字节码命令所能提供的语义描述能力肯定比会被 Java ......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-26
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/2018/07/25/JVM(二) - 垃圾收集器与内存分配策略/">
-        <h2 class="post-title">
-            JVM(二) - 垃圾收集器与内存分配策略
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            概述在 Java内存运行时区域中，程序计数器、虚拟机栈、本地方法栈 三个区域随线程而生，随线程而灭；栈中的栈帧随着方法的进入和退出而有条不紊地执行着出栈和入栈操作。每一个栈帧中分配多少内存基本上是在类结构确定下来时就已知的，因此这几个区域的内存分配和回收都具备确定性。在这几个区域内不需要过多考虑回收的问题，因为方法结束或线程结束时，内存自然就跟随着回收了。
-而Java堆 和 方法区 则不一样......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by LinYaoTian on
-            2018-07-25
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#JVM" title="JVM">JVM</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -605,6 +608,14 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
     <ul>
       
         <li>
+          <a href="/2019/03/01/RecyclerView缓存解析/">(no title)</a>
+        </li>
+      
+        <li>
+          <a href="/2019/02/03/ListView缓存解析/">ListView 缓存解析</a>
+        </li>
+      
+        <li>
           <a href="/2019/02/01/Android 自定义 View 之 LeavesLoading/">Android 自定义 View 之 LeavesLoading</a>
         </li>
       
@@ -614,14 +625,6 @@ Java 语言中的各种变量、关键字和运算符的语义最终都是由多
       
         <li>
           <a href="/2018/12/09/Set/">Set</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/08/ConcurrentHashMap/">ConcurrentHashMap源码分析</a>
-        </li>
-      
-        <li>
-          <a href="/2018/12/08/LinkedHashMap/">LinkedHashMap源码分析</a>
         </li>
       
     </ul>
