@@ -205,14 +205,14 @@
 
                 <p>相关知识：</p>
 <p>ListView 和 RecyclerView 的缓存机制原理大致相似，如下图所示：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufzCkX1dEY7oa7GEXf6kNmDGrGmu7W8wgrTaepT7cibpblRQdI6A1r7Ww/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-e26096bafae64284?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>过程中，离屏的ItemView即被回收至缓存，入屏的ItemView则会优先从缓存中获取，只是ListView与RecyclerView的实现细节有差异。（这只是缓存使用的其中一个场景，还有如刷新等）</p>
 <h1 id="缓存机制对比"><a href="#缓存机制对比" class="headerlink" title="缓存机制对比"></a>缓存机制对比</h1><h2 id="1-层级不同"><a href="#1-层级不同" class="headerlink" title="1.层级不同"></a>1.层级不同</h2><p>RecyclerView 比 ListView 多了两层缓存，支持多个离屏 ItemView 的缓存，支持开发者自定义缓存处理逻辑，支持所有 RecyclerView 共用一个 RecyclerViewPool 缓存池。</p>
 <p>具体来说：</p>
 <p>ListView(两级缓存)：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufHz28MwvsyiboPFm87p0KP9X8tXSxfyMa418y5A6W4IM1YHxzIWyegnA/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-58e6c21ba771714a?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>RecyclerView(四级缓存)：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufC6icrM5bKUMlvibopVTofN5qahSLwvibk3QDL48tib20PmcGB5EgKjjy9g/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-f306159ff591d71b?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>ListView 和 RecyclerView 缓存机制基本一致：</p>
 <p>1). mActiveViews 和 mAttachedScrap 功能相似，意义在于快速重用屏幕上可见的列表项 ItemView，而不需要重新 createView和 bindView。</p>
 <p>2). mScrapView 和 mCachedViews + mReyclerViewPool 功能相似，意义在于缓存离开屏幕的 ItemView，目的是让即将进入屏幕的 ItemView 重用。</p>
@@ -224,9 +224,9 @@
 <h2 id="2-缓存的对象不同"><a href="#2-缓存的对象不同" class="headerlink" title="2.缓存的对象不同"></a>2.缓存的对象不同</h2><p>1). RecyclerView 缓存 ViewHolder，抽象可理解为：View + ViewHolder(避免每次 createView 时调用 findViewById) + flag(标识状态)；<br>2). ListView 直接缓存 View。</p>
 <p>缓存不同，二者在缓存的使用上也略有差别，具体来说：</p>
 <p>ListView获取缓存的流程：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufCXA793Su8XIsICg4MXBhnQZpTcy4mrYicqqz075zF26aXNopowaCArg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-b3918440cef09302?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>RecyclerView获取缓存的流程：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufBl8lqBPiaTQtBPno9NB2RI1qmSXXWcLCk9lWnVuENWkGazmMnUQ6YSg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-e345d282f1f553b0?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>1).RecyclerView 中 mCacheViews(屏幕外)获取缓存时，是通过匹配 pos 获取目标位置的缓存，这样做的好处是，当数据源数据不变的情况下，无须重新 bindView。</p>
 <blockquote>
 <p>情景：用手指上下滑动，重复让 2-3 个 Item 滑出和滑入屏幕，此时是不需要重新 bindView 的。如果一直向一个方向滑动，RecyclerView 还是会去 bindView，因为 mCacheViews 缓存空间有限。</p>
@@ -236,7 +236,7 @@
 <p>2).ListView 中通过 pos 获取的是 view，即 pos → view。<br>RecyclerView 中通过 pos 获取的是 viewholder，即 pos → (view，viewHolder，flag)；<br>从流程图中可以看出，标志 flag 的作用是判断 view 是否需要重新 bindView，这也是 RecyclerView 实现局部刷新的一个核心。</p>
 <h1 id="局部刷新"><a href="#局部刷新" class="headerlink" title="局部刷新"></a>局部刷新</h1><p>由上文可知，RecyclerView 的缓存机制确实更加完善，但还不算质的变化，RecyclerView 更大的亮点在于提供了局部刷新的接口，通过局部刷新，就能避免调用许多无用的 bindView。</p>
 <p>[RecyclerView和ListView添加，移除Item效果对比]</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_gif/tnZGrhTk4desHkFxgnbyfgeoUgmoppufwpbbQXbXukEj3Rs1yVy43IOZp4gWnibZyVricL3adRtqGQ6YJDsqicQOA/0?wx_fmt=gif&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-d57d49657e2e0821?imageMogr2/auto-orient/strip" alt="image"></p>
 <p>结合 RecyclerView 的缓存机制，看看局部刷新是如何实现的：以 RecyclerView 中 <code>notifyItemRemoved(1)</code> 为例，最终会调用 <code>requestLayout()</code>，使整个 RecyclerView 重新绘制，过程为：</p>
 <p>onMeasure()→onLayout()→onDraw()</p>
 <p>其中，onLayout() 为重点，分为三步：</p>
@@ -246,10 +246,10 @@
 <li><code>dispatchLayoutStep3()</code>：计算布局前后各个 ItemView 的状态，如Remove、Add、Move、Update等，如有必要执行相应的动画。</li>
 </ol>
 <p>其中，<code>layoutChildren()</code>流程图：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufOdt3rQ8IoekNogJp9preqdUBJtFGibic8PmSIe6gh5noYbjPBfKKUqqw/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufQAFiaDGwMgrTicOD5FSVvyeCTl6diblTj4tMDOfmqTrriaQwiaH2AtyPWnw/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-7b545714fd8a101b?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5643593-341e18b15b14b4d4?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <p>当调用 <code>notifyItemRemoved()</code> 时，会对屏幕内 ItemView 做预处理，修改 ItemView 相应的 pos 以及 flag (流程图中红色部分)：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_png/tnZGrhTk4desHkFxgnbyfgeoUgmoppufnj0cS4ZVuKFldI9LRxtqCFxoMzSqzqkgP5jKHBuuWz2Mtic7swygqQg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt="img"></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5643593-44c31b57ac839840?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="img"></p>
 <p>当调用<code>fill()</code>中 <code>RecyclerView.getViewForPosition(pos)</code> 时，RecyclerView 通过对 pos 和 flag 的预处理，使得<code>bindview()</code>只调用一次.</p>
 <p>需要指出，ListView 和RecyclerView最大的区别在于数据源改变时的缓存的处理逻辑，ListView是”一锅端”，将所有的 View 都重新 <code>bindView()</code>，而 RecyclerView 则是更加灵活地对每个 View 修改标志位，区分是否重新<code>bindView()</code>。</p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>Bugly 的 <a href="https://mp.weixin.qq.com/s?__biz=MzA3NTYzODYzMg==&amp;mid=2653578065&amp;idx=2&amp;sn=25e64a8bb7b5934cf0ce2e49549a80d6&amp;chksm=84b3b156b3c43840061c28869671da915a25cf3be54891f040a3532e1bb17f9d32e244b79e3f&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Android ListView 与 RecyclerView 对比浅析–缓存机制</a></p>
